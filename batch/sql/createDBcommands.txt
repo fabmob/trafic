@@ -1,0 +1,15 @@
+################################
+	Create db
+	execute each command in .../batch/sql
+################################
+docker run -d --name traficdb -p 5432:5432 -e POSTGRES_PASSWORD=password timescale/timescaledb:latest-pg12
+docker cp createEmptyDB.sql traficdb:createEmptyDB.sql
+docker cp telraam.csv traficdb:telraam.csv
+docker cp trafic_time.csv traficdb:trafic_time.csv
+docker exec -it traficdb psql -U postgres -f createEmptyDB.sql
+
+################################
+	optional : load data
+################################
+docker exec -it traficdb psql -U postgres -d trafic -c "\COPY telraam FROM telraam.csv CSV"
+docker exec -it traficdb psql -U postgres -d trafic -c "\COPY trafic_time FROM trafic_time.csv CSV"

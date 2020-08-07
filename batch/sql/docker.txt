@@ -1,0 +1,128 @@
+
+################################
+	influxdb
+################################
+docker run -p 8086:8086 -v //C/dev/docker influxdb
+docker run -p 8086:8086 -v C:\dev\docker:/var/lib/influxdb influxdb
+
+
+mYKyMyL-aMyg-oxYLbehfYq@NEH
+
+mYKyMyL-aMyg-oxYLbehfYq@NEH
+
+ALTER USER 'root'@'localhost' IDENTIFIED BY 'password';
+
+################################
+	mysql
+################################
+docker run --detach --name=mysqldb --publish 3306:3306 -v C:\dev\docker:/var/lib/mysql mysql/mysql-server
+winpty docker.exe exec -it mysql-db mysql -uroot -p
+
+winpty docker.exe exec -it mysql-db mysql -uspringuser db_example -pspringuserpwd
+
+mysql -u USERNAME -h HOSTNAMEORIP DATABASENAME -p
+
+
+INSERT INTO pet (name, owner, species, sex,birth,death) VALUES ('zelda', 'as', 'chat', 'F',NULL,NULL);
+
+CREATE TABLE pet (name VARCHAR(20), owner VARCHAR(20),
+    -> species VARCHAR(20), sex CHAR(1), birth DATE, death DATE);
+
+################################
+	timescaledb
+################################
+
+docker run -d --name timescaledb -p 5432:5432 -e POSTGRES_PASSWORD=password timescale/timescaledb:latest-pg12
+docker exec -it timescaledb psql -U postgres
+
+pg_dump -U postgres -Fc -f trafic.bak trafic
+docker cp timescaledb:trafic.bak trafic.bak
+
+
+docker run -d --name traficdb -p 5432:5432 -e POSTGRES_PASSWORD=password timescale/timescaledb:latest-pg12
+
+docker cp trafic.bak traficdb:trafic.bak
+docker cp createFullDB.sql traficdb:createFullDB.sql
+docker cp createEmptyDB.sql traficdb:createEmptyDB.sql
+
+docker exec -it traficdb psql -U postgres -f createFullDB.sql
+docker exec -it traficdb psql -U postgres
+
+
+
+
+################################
+	graphana
+################################
+docker run -d -p 3000:3000 grafana/grafana
+localhost:3000 admin/admin
+new password : graphana
+
+
+#####################
+# SQL
+###############
+
+INSERT INTO trafic(time , camera , latitude, longitude, direction, road , averageVehicleSpeed, vehicleFlowRate, trafficConcentration)
+  VALUES (NOW(), 'A1.GT.6130', '49.61025','6.1753507','outboundFromTown','A1',98.0,1218,5.0);
+
+
+INSERT INTO trafic(time , camera , latitude, longitude, direction, road , averageVehicleSpeed, vehicleFlowRate, trafficConcentration)
+VALUES ('2017-07-28 11:50:00.846621+00', 'A0.XX.112', '49.61025','6.1753507','outboundFromTown','A1',98.0,1218,5.0)
+ON CONFLICT (time, camera) DO UPDATE
+SET averageVehicleSpeed = excluded.averageVehicleSpeed,
+    vehicleFlowRate = excluded.vehicleFlowRate,
+	trafficConcentration = excluded.trafficConcentration;
+
+
+INSERT INTO trafic(time , camera , latitude, longitude, direction, road , averageVehicleSpeed, vehicleFlowRate, trafficConcentration)
+VALUES ('2017-07-28 11:50:00.846621+00', 'A0.XX.112', '49.61025','6.1753507','outboundFromTown','A1',100,1000,10)
+ON CONFLICT (time, camera) DO UPDATE
+SET averageVehicleSpeed = excluded.averageVehicleSpeed,
+    vehicleFlowRate = excluded.vehicleFlowRate,
+	trafficConcentration = excluded.trafficConcentration;
+
+
+
+SELECT time_bucket('15 minutes', time) AS fifteen_min,
+    camera, COUNT(*),
+    AVG(averageVehicleSpeed) AS max_avg_speed,
+    AVG(vehicleFlowRate) AS max_flow_rate
+  FROM trafic
+  WHERE time > NOW() - INTERVAL '3 hours' and road ='A3'
+  GROUP BY fifteen_min, camera
+  ORDER BY camera DESC ,fifteen_min DESC ;
+
+INSERT INTO trafic_time(time , camera , average_vehicle_speed, vehicle_flow_rate, traffic_concentration)
+                 VALUES ('2017-07-28 11:50:00.846621+00', 'A0.XX.112', 100,1000,5.65)
+                 ON CONFLICT (time, camera) DO UPDATE
+                 SET average_vehicle_speed = excluded.average_vehicle_speed,
+                 vehicle_flow_rate = excluded.vehicle_flow_rate,
+                 traffic_concentration = excluded.traffic_concentration;
+
+INSERT INTO meteo(time , point , humidity , no_precipitation , millimetres_per_hour_intensity , road_surface_temperature , temperature_below_road_surface , weather_related_road_condition_type , air_temperature , dew_point_temperature , wind_speed , maximum_wind_speed , wind_direction_bearing , status_type)
+                 VALUES (time, :id, :humidity, :noPrecipitation, :millimetresPerHourIntensity, :roadSurfaceTemperature, :temperatureBelowRoadSurface, :weatherRelatedRoadConditionType, :airTemperature, :dewPointTemperature, :windSpeed, :maximumWindSpeed, :windDirectionBearing, :statusType)
+                 ON CONFLICT (time, camera) DO NOTHING
+
+SELECT
+  t.time AS "time",
+  t.camera AS metric,
+  t.vehicle_flow_rate
+FROM trafic_time as t, camera as c
+WHERE
+  t.camera = c.camera
+  c.road = 'A3'
+ORDER BY 1,2
+
+
+select
+(car_speed_00*5+car_speed_10*15+car_speed_20*25+car_speed_30*35+car_speed_40*45+car_speed_50*55+car_speed_60*65+car_speed_70*75)
+/(car_speed_00 +car_speed_10*15+car_speed_20+car_speed_30+car_speed_40+car_speed_50+car_speed_60+car_speed_70) as speed
+
+SELECT time_bucket('1 days', time) AS time,
+    SUM(bike)
+
+  FROM trafic
+  WHERE time > NOW() - INTERVAL '24 hours' and road ='A3'
+  GROUP BY fifteen_min, camera
+  ORDER BY camera DESC ,fifteen_min DESC ;
