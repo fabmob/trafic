@@ -1,5 +1,7 @@
 # trafic : IA Prédiction du flux routier
 
+![La Fabrique des mobilités](./assets/fabmoblogo.jpg)
+
 [wiki.lafabriquedesmobilites.fr/wiki/IA\_Prediction\_de\_flux\_routier](https://wiki.lafabriquedesmobilites.fr/wiki/IA_Prediction_de_flux_routier)
 
 L&#39;objet de ce commun est de produire de la connaissance pour identifier quelles sont les conditions minimales pour alimenter une IA capable de prédire les flux de circulation à un certain horizon de temps.
