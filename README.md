@@ -120,7 +120,17 @@ Documentation de l&#39;API : [https://telraam.zendesk.com/hc/en-us/articles/3600
 
 Remarque : ce paragraphe décrit des données disponibles utilisables pour la prédiction du trafic. Dans la suite, uniquement les données issues des caméras sont utilisées pour cette exploration (Données cita du trafic des autoroutes Lux + Données telraam du trafic place général de gaulle)
 
+# Capture des données
 
+## Description
+
+![Schema](./assets/CaptureSchema.png)
+La solution technique  est décrite ici [READMEBATCH.md](READMEBATCH.md)
+
+L'idée est de capter les données décrites ci-dessus et de visualiser les données en temps réel à l'aide de dashboard
+![DashboardTelraam](./assets/DashboardTelraam.png)
+![DashboardCita](./assets/DashboardCita.png)
+![DashboardCitaMap](./assets/DashboardCitaMap.png)
 # Analyse des données du trafic des autoroutes au Luxembourg
 
 ## Description des données
