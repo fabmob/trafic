@@ -55,3 +55,32 @@ docker exec -it traficdb psql -U postgres -f createEmptyDB.sql
 docker exec -it traficdb psql -U postgres -d trafic -c "\COPY telraam FROM telraam.csv CSV"
 docker exec -it traficdb psql -U postgres -d trafic -c "\COPY trafic_time FROM trafic_time.csv CSV"
 ```
+
+## Graphana
+
+#### Installer Graphana dans docker 
+`docker run -d -p 3000:3000 grafana/grafana`  
+
+#### installer le worldmap panel
+
+Dans le dashboard Docker, ouvrir un client linux : bouton CLI 
+Exécuter :
+`grafana-cli plugins install grafana-worldmap-panel`
+
+#### Connection à graphana
+`localhost:3000`
+- Première connection : user = admin/ password = admin  
+- Définir un nouveau mot de passe exemple : new password  graphana
+
+#### Importer les dashboards
+
+Les tableaux de bord sont exportés au format Grafana JSON et contiennent tout ce dont vous avez besoin (mise en page, variables, styles, sources de données, requêtes, etc.).
+
+Les dashboards sont dans le répertoire  trafic\batch\graphana
+
+Pour importer un tableau de bord, cliquez sur l'icône + dans le menu latéral, puis cliquez sur Importer.
+
+#### Exporter les dashboards
+
+La fonction d'exportation est accessible dans la fenêtre de partage que vous ouvrez en cliquant sur le bouton de partage dans le menu du tableau de bord.
+

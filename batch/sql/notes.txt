@@ -151,3 +151,45 @@ SELECT time_bucket('1 days', time) AS time,
   WHERE time > NOW() - INTERVAL '24 hours' and road ='A3'
   GROUP BY fifteen_min, camera
   ORDER BY camera DESC ,fifteen_min DESC ;
+
+  SELECT time_bucket('1 hours', measure_datetime) AS time,
+      AVG(average_vehicle_speed)
+
+    FROM trafic_time as t, camera as c
+    WHERE
+      t.camera = c.camera
+    WHERE
+    camera = '$camera'
+    and measure_datetime > NOW() - INTERVAL '1 months'
+    GROUP BY time
+    ORDER BY time;
+
+    SELECT time_bucket('5m', t.measure_datetime) AS time,
+           t.average_vehicle_speed AS value,
+           c.latitude AS latitude,
+           c.longitude AS longitude
+    FROM trafic_time as t, camera as c
+    WHERE t.camera = c.camera AND $__timeFilter(t.measure_datetime) AND
+      ST_Distance(pickup_geom,
+                  ST_Transform(ST_SetSRID(ST_MakePoint(49.61167 , 6.13),4326),2163)
+      ) < 20000
+    GROUP BY time,
+             t.average_vehicle_speed,
+             c.latitude,
+             c.longitude
+    ORDER BY time
+    LIMIT 20;
+
+
+        SELECT t.measure_datetime AS time,
+               t.average_vehicle_speed AS value,
+               c.latitude AS latitude,
+               c.longitude AS longitude
+        FROM trafic_time as t, camera as c
+        WHERE t.camera = c.camera AND $__timeFilter(t.measure_datetime)
+        GROUP BY time,
+                 t.average_vehicle_speed,
+                 c.latitude,
+                 c.longitude
+        ORDER BY time
+        LIMIT 20;
