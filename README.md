@@ -131,7 +131,12 @@ L'idée est de capter les données décrites ci-dessus et de visualiser les donn
 ![DashboardTelraam](./assets/DashboardTelraam.png)
 ![DashboardCita](./assets/DashboardCita.png)
 ![DashboardCitaMap](./assets/DashboardCitaMap.png)
+
 # Analyse des données du trafic des autoroutes au Luxembourg
+
+L'ensemble de l'analyse est disponible ici [traffic-prediction-in-luxembourg.ipynb](traffic-prediction-in-luxembourg.ipynb) 
+
+Cette analyse est publiée pour le compte de la fabmob le site de data science Kaggle : [traffic-prediction-in-luxembourg](https://www.kaggle.com/fabmob/traffic-prediction-in-luxembourg) 
 
 ## Description des données
 
@@ -211,28 +216,30 @@ Precision= Probability (positive | positive test) = TP / (TP+FP)
 - **Pourcentage de prédiction correcte parmi les observations négatives**
 Specificity = Probability (negative test | negative) = TN / (FP+TN)
 
-![](RackMultipart20200810-4-1opa7w4_html_26e4bc61c6fd9682.png)
+![](./assets/confusion_matrice.png)
 
 Les données ont été divisées en deux jeux :
 
 - 80% des données sont utilisées pour entrainer le modèle (train data)
 - 20% des données sont utilisées pour mesurer la fiabilité des prédictions (test data)
 
-_Résultat la caméra_ _A3.MV.10437_ _(A3 au kilomètre 10) en direction du Luxembourg._
+Et les trois indicateurs ont été testés sur toutes les caméras de l'A3 avec les résultats suivants :
 
-|
- | Baisse relative de la vitesse de 20% | Baisse de la vitesse de 60% par rapport à la vitesse moyenne globale | Baisse de la vitesse et du flow de 60% par rapport à la vitesse moyenne globale |
-| --- | --- | --- | --- |
-| Les 5 variables les plus discriminantes | [&#39;vehicleFlowRate&#39;, &#39;prev\_station\_vehicleFlowRate&#39;, &#39;avgVehicleSpeed&#39;, &#39;EWMtraffic&#39;, &#39;EWMavg&#39;] | [&#39;avgVehicleSpeed&#39;, &#39;EWMavg&#39;, &#39;prev\_station\_avgVehicleSpeed&#39;, &#39;EWMtraffic&#39;, &#39;prev\_station\_vehicleFlowRate&#39;]
- | [&#39;prev\_station\_vehicleFlowRate&#39;, &#39;vehicleFlowRate&#39;, &#39;EWMflow&#39;, &#39;EWMavg&#39;, &#39;EWMtraffic&#39;] |
-| Matrice de confusion | [[1501 **8**][**35** 14]] | [[1394 13][12 138]] | [[1532 1][**10** 14]]
- |
-| Accuracy | 0.972 | 0.984 | 0.993 |
-| Precision | 0.636 | 0.914 | 0.933 |
-| Sensitivity | 0.286 | 0.92 | 0.583 |
+![Accuracy](./assets/RFResultAcc.png)
 
-1.
+![Precision](./assets/RFResultPre.png)
+
+![Specificity](./assets/RFResultRec.png)
+
+> L'indicateur qui donne les meilleurs résultats est une baisse de vitesse de 60% (par rapport à la vitesse moyenne globale) en 15 minutes
+
+
 # Analyse des données de la caméra telraam
+
+L'ensemble de l'analyse est disponible ici [predict-trafic-flow-from-camera-counting.ipynb](predict-trafic-flow-from-camera-counting.ipynb) 
+
+Cette analyse est publiée pour le compte de la fabmob le site de data science Kaggle : [predict-trafic-flow-from-camera-counting](https://www.kaggle.com/fabmob/predict-trafic-flow-from-camera-counting) 
+
 
 ## Description des données
 
@@ -246,41 +253,27 @@ Chaque heure la caméra relève les données suivantes :
 
 Exemple :
 
+Exemple :
+```
 &quot;segment\_id&quot;: &quot;9000000411&quot;,
-
 &quot;date&quot;: &quot;2020-07-23T05:00:00.000Z&quot;,
-
 &quot;pct\_up&quot;: 0.584444444444444,
-
 &quot;timezone&quot;: &quot;Europe/Paris&quot;,
-
 &quot;pedestrian&quot;: 27.3764258555133,
-
 &quot;bike&quot;: 10.2661596958175,
-
 &quot;car&quot;: 366.15969581749,
-
 &quot;lorry&quot;: 11.9771863117871,
-
 &quot;pedestrian\_lft&quot;: 15.3992395437262,
-
 &quot;bike\_lft&quot;: 0,
-
 &quot;car\_lft&quot;: 22.2433460076046,
-
 &quot;lorry\_lft&quot;: 0,
-
 &quot;pedestrian\_rgt&quot;: 11.9771863117871,
-
 &quot;bike\_rgt&quot;: 10.2661596958175,
-
 &quot;car\_rgt&quot;: 343.916349809885,
-
 &quot;lorry\_rgt&quot;: 11.9771863117871,
-
 &quot;car\_speed\_histogram&quot;: [10.2661596958175,27.3764258555133,107.794676806084,164.25855513308,34.2205323193916,11.9771863117871,5.13307984790875,5.13307984790875],
-
 &quot;car\_speed\_bucket&quot;: [0,1,2,3,4,5,6,7]
+```
 
 Pour une année, cela représente au plus 8760 enregistrements
 
@@ -292,7 +285,11 @@ Cette caméra a des contraintes, car pour réaliser les comptages, elle fait de 
 
 La capture des données n&#39;est donc pas en continue comme on peut le voir sur le graphique de comptage des voitures sur cette période.
 
-![](RackMultipart20200810-4-1opa7w4_html_9478c432b01fd6b7.png)
+![Comptage des voitures](./assets/Car.png)
+
+La stratégie pour combler les valeurs manquantes est de remplacer NaN par la moyenne à la même heure et au même jour de la semaine.
+
+![Comptage ajusté des voitures ](./assets/Adjusted_Car.png)
 
 ## Exploration graphique des données
 
@@ -336,120 +333,17 @@ Pour utiliser des modèles sur ces séries de comptage, les valeurs manquantes v
 
 ## Prédiction
 
-1.
+
 # Compte kaggle pour la FabMob
 
 User : [lafabriquedesmobilites@gmail.com](mailto:lafabriquedesmobilites@gmail.com)
 
 Pwd :
 
-1.
+
 # Description de l&#39;infrastructure
 
-![](RackMultipart20200810-4-1opa7w4_html_5d4677cb5bf7f824.gif)
+![Prototypage](./assets/architectureDev.jpg)
 
-Cameras
+![Production](./assets/architectureProd.jpg)
 
-telraam / cita
-
-![](RackMultipart20200810-4-1opa7w4_html_922e93f9ea655aa4.gif)
-
-Extraction
-
-![](RackMultipart20200810-4-1opa7w4_html_3475898e2ac46764.gif)
-
-Stockage
-
-# NOTES
-
-Exemple
-
-&quot;segment\_id&quot;: &quot;9000000411&quot;,
-
- &quot;date&quot;: &quot;2020-07-01T22:00:00.000Z&quot;,
-
- &quot;pct\_up&quot;: 0.448981481481482,
-
-&quot;timezone&quot;: &quot;Europe/Paris&quot;,
-
-&quot;pedestrian&quot;: 604.391643145026,
-
-&quot;bike&quot;: 1553.10258573979,
-
-&quot;car&quot;: 9226.5770122573,
-
-&quot;lorry&quot;: 1063.81217958995,
-
-&quot;pedestrian\_lft&quot;: 284.86737748684,
-
- &quot;bike\_lft&quot;: 894.621476307705,
-
-&quot;car\_lft&quot;: 5193.30653377209,
-
-&quot;lorry\_lft&quot;: 364.777851777449,
-
-&quot;pedestrian\_rgt&quot;: 319.524265658186,
-
- &quot;bike\_rgt&quot;: 658.481109432086,
-
- &quot;car\_rgt&quot;: 4033.27047848521,
-
-&quot;lorry\_rgt&quot;: 699.034327812504,
-
-&quot;car\_speed\_histogram&quot;: [2289.38747172499,3104.1790056431,2722.70916279142,725.617402833619,143.54595136182,65.1015948034983,58.1040594288343,117.932363670011],
-
-            &quot;car\_speed\_bucket&quot;: [0,1,2,3,4,5,6,7]
-
-Livrables attendus ( repris de la fiche commun)
- Connecteur Spring : Connecteur batch générique Open Source en java à l&#39;aide du framework Spring permettant de récolter les données des caméras
-
-Base de données « Time Series » : Intégration intégration et alimentation d&#39;une base de données « Time Series »
-
-Outil de visualisation : oOutil de visualisation de données
- Test IA de prédiction à l&#39;aide d&#39;outil de « machine learning »
- Rapport d&#39;analyse sur les résultats de l&#39;algorithme prédictif et description de l&#39;infrastructures
- nécessaires au bon fonctionnement de l&#39;IA à son cycle de vie.
-
-Yann :
-
-Les technologies choisies répondent à ces critères :
-
-+ Open Source
-
-+ Très bien documentées
-
-+ Très utilisées et la connaissance est très répandue chez les développeurs
-
-**Solution pour la captation **** pour les flux **[**cita.lu**](http://cita.lu/)** et telraam**
-
-Batch d&#39;alimentation : java à l&#39;aide du framework Spring ([https://spring.io/](https://spring.io/))
-
-DB « Time Series »  : timescale de Postgresql [https://www.timescale.com/](https://www.timescale.com/)
-
-Visualisation : Graphana [https://grafana.com/grafana/](https://grafana.com/grafana/)
-
-(timescaledb et graphana tournent dans un container Docker)
-
-Livrables attendus
-
-+ Code sources dans un repo Git  (java + sql)
-
-+ Documentation de mise en oeuvre sur un poste local
-
-+ Deux exemples de dashboard Graphana : 1 cita + 1 telraam
-
-**Analyse / prédiction **
-
-Outils : python à l&#39;aide des librairies [https://scikit-learn.org/stable/](https://scikit-learn.org/stable/) [https://www.tensorflow.org/](https://www.tensorflow.org/) et [https://keras.io/](https://keras.io/)
-
-Code sources dans un repo Git
-
-Documentation de mise en oeuvre
-
-Rapport d&#39;analyse pour la mise en oeuvre d&#39;un algorithme prédictif :
-
-+ Quelles sont les données nécessaires ?
-
-+ Quelles prédictions ( flow, vitesse ) , quel horizon de temps?
-
-+ Décrire les besoins pour mettre cet algorithme en production
