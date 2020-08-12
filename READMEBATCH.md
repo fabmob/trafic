@@ -19,6 +19,21 @@ Minimal Configuration :
 - Maven : Dev
 - EDI IntelliJ ou Eclipse : Dev
 
+## Le batch de capture
+
+Le batch est développer à l'aide de Spring Batch. Un batch est composé de trois couches qui s’exécute périodiquement :
+- Reader : lecture périodique des urls pour lire les données 
+- Processor : conversion / formatage des données
+- Writer : insertion dans la DB
+
+[Documentation officiel](https://spring.io/projects/spring-batch)
+####  Eléments clés
+- trafic\batch\src\main\resources\application.properties : database configuration
+- trafic\batch\src\main\java\com\datex\batch\BatchApplication.java : main program
+- trafic\batch\src\main\java\com\datex\batch\BatchConfiguration.java : configuration des batchs
+####  Build / Execute
+Le jar est généré à l'aide de maven  `./mvnw clean package`  et s’exécute à l'aide de la commande `java -jar target/gs-batch-processing-0.1.0.jar`
+
 ## Mise en oeuvre de la DB
 Tous les sources sont dans trafic\batch\sql
 
