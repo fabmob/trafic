@@ -10,19 +10,21 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import pickle
 import math
-from matplotlib import dates
-from datetime import datetime
 import statsmodels.api as sm
 from sklearn.metrics import mean_squared_error
+plt.style.use('seaborn')
 
- 
+# Global variable / function
+########################################## 
+
+file='data/telraam.csv'
+dir_image = 'out'
+dir_object='object'
+
 # root mean squared error or rmse
 def measure_rmse(actual, predicted):
 	return math.sqrt(mean_squared_error(actual, predicted))
 
-plt.style.use('seaborn')
-
-file='data/telraam.csv'
 
 # Load and Save object
 def save(name,obj):
@@ -33,7 +35,6 @@ def save(name,obj):
 def load(name):
     savefile = open(name, 'rb')      
     return pickle.load(savefile) 
-
 
 
 # Load the data
@@ -61,7 +62,6 @@ for col in ['car','pedestrian','lorry','bike']:
     df['adjust_'+col] = df.groupby(['dayofweek','hour'])[col].transform(lambda x: x.fillna(x.median()))
     df[col].fillna(0,inplace=True)
 
-
 for i in range(0,80,10):
     df['car_speed_{:02d}'.format(i)].fillna(0,inplace=True)
 
@@ -76,6 +76,7 @@ df['speed'].plot(title='Speed')
 result = pd.pivot_table(df, index="hour", values=['speed'],columns=['dayofweek'], aggfunc=np.max,margins=False,dropna=False)
 result.columns = ['Monday','Tuesday','Wenesday','Thursday','Friday','Saturday','Sunday']
 result.plot(title='{} : max average speed by hour'.format('Speed'))
+plt.save('')
 
 result = pd.pivot_table(df, index="hour", values=['speed'],columns=['dayofweek'], aggfunc=np.median,margins=False,dropna=False)
 result.columns = ['Monday','Tuesday','Wenesday','Thursday','Friday','Saturday','Sunday']
@@ -116,8 +117,10 @@ for col in ['car','pedestrian','lorry','bike']:
 
 # Adjusted data versus row data
 ###########################################
-df['car'].plot(title='Number of car')
-df['adjust_car'].plot(title='Adjusted number of car ')
+df['pct_up'].plot(title='Number of car')
+plt.show()
+df['car'].plot(title='Adjusted number of car ')
+plt.show()
 
 
 ###########################################
@@ -148,15 +151,15 @@ train_and_test = pd.concat([train,test])
 ###########################################
 
 # import pmdarima as pm
-# # grid_model = pm.auto_arima(df['adjust_car'], start_p=1, start_q=1,
-# #                          test='adf',
-# #                          max_p=4, max_q=4, m=24,
-# #                          start_P=0, seasonal=True,
-# #                          d=0, D=1, trace=True,
-# #                          error_action='ignore',  
-# #                          suppress_warnings=True, 
-# #                          stepwise=True)
-# # save('object/carArimaModel',grid_model)
+# grid_model = pm.auto_arima(df['adjust_car'], start_p=1, start_q=1,
+#                           test='adf',
+#                           max_p=4, max_q=4, m=24,
+#                           start_P=0, seasonal=True,
+#                           d=0, D=1, trace=True,
+#                           error_action='ignore',  
+#                           suppress_warnings=True, 
+#                           stepwise=True)
+# save('object/carArimaModel',grid_model)
 # grid_model = load('object/carArimaModel')
 # print(grid_model.summary())
 

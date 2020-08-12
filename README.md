@@ -1,6 +1,5 @@
-# trafic : IA Prédiction du flux routier
+# trafic : Prédiction du flux routier
 
-![La Fabrique des mobilités](./assets/fabmoblogo.jpg)
 
 [wiki.lafabriquedesmobilites.fr/wiki/IA\_Prediction\_de\_flux\_routier](https://wiki.lafabriquedesmobilites.fr/wiki/IA_Prediction_de_flux_routier)
 
@@ -49,7 +48,7 @@ Les livrables pour cette solution d&#39;alimentation sont le code source (java +
 L&#39; administration des Ponts et Chaussées du Luxembourg met à disposition un ensemble de données ouvertes via la plate-forme de données luxembourgeoise [data.public.lu](http://data.public.lu/)
  ( [https://data.public.lu/fr/organizations/administration-des-ponts-et-chaussees](https://data.public.lu/fr/organizations/administration-des-ponts-et-chaussees)  )
 
-
+![www.cita.lu](./assets/motorwayLux.png)
 
 Les données suivantes peuvent être interrogées en temps réels au format DATEX II, format de données de trafic routier (norme européenne) (DATEX II : [http://trafic-routier.data.cerema.fr/la-norme-europeenne-datex-ii-a58.html](http://trafic-routier.data.cerema.fr/la-norme-europeenne-datex-ii-a58.html) )
 
@@ -57,7 +56,7 @@ Les données suivantes peuvent être interrogées en temps réels au format DATE
 - Données des événements trafic
 - Données météo
 
-Données du trafic des autoroutes
+### Données du trafic des autoroutes
 Pour chacune des 180 caméras sur les autoroutes (A1, A3, A4, A6, A7, A13, B40) les données suivantes sont exposées toutes les 5 minutes :
  Données :
 
@@ -74,7 +73,7 @@ Format : XML DATEX II
  URLs A1 : [https://www.cita.lu/info\_trafic/datex/trafficstatus\_a1](https://www.cita.lu/info_trafic/datex/trafficstatus_a1)
  URL pour xx : [https://www.cita.lu/info\_trafic/datex/trafficstatus\_xx](https://www.cita.lu/info_trafic/datex/trafficstatus_xx)   avec xx dans (A1, A3, A4, A6, A7, A13, B40)
 
-Données des événements trafic
+### Données des événements trafic
 L&#39;API donne la liste des événements (situation) en cours.
 
 On peut trouver les données suivantes à dispositions pour chaque situation, identifiant de la situation, timestamp de la création de la situation, position, description de l&#39;événement.
@@ -83,8 +82,7 @@ On peut trouver les données suivantes à dispositions pour chaque situation, id
 Le format est en XML DATEX II
  URL : [https://www.cita.lu/info\_trafic/datex/situationrecord](https://www.cita.lu/info_trafic/datex/situationrecord)
 
-###
-Données météo
+### Données météo
 
 L&#39;API donne des informations météos pour un ensemble de point de mesure.
 
@@ -106,6 +104,8 @@ Le format est en XML DATEX II
 
 
 Cette caméra fait partie du dispositif Telraam qui met à disposition des citoyens intéressés des caméras de comptage. ([https://www.telraam.net/fr/what-is-telraam](https://www.telraam.net/fr/what-is-telraam))
+
+![telraam](./assets/telraam.jpg)
 
 Chaque heure la caméra relève les données suivantes :
 
@@ -145,15 +145,15 @@ Les graphiques suivants tracent ces 3 mesures pour la caméra au kilomètre 11 d
 
 Vitesse moyenne en km/h sur 4 semaines (2019-11-25 au 2019-12-23) par jour, d&#39;abord vers le Luxembourg, puis vers la France
 
-![](RackMultipart20200810-4-1opa7w4_html_d4d16c7e8866aab2.png)
+![Vitesse moyenne](./assets/A3.MV.11397_day_traffic_avg_speed.jpg)
 
 Nombre de voitures par heure sur 4 semaines (2019-11-25 au 2019-12-23) par jour, d&#39;abord vers le Luxembourg, puis vers la France
 
-![](RackMultipart20200810-4-1opa7w4_html_cfa23184323bf5e5.png)
+![Nombre de voitures](./assets/A3.MV.11397_day_traffic_flow_rate.jpg)
 
 Concentration du trafic sur 4 semaines (2019-11-25 au 2019-12-23) par jour, d&#39;abord vers le Luxembourg, puis vers la France
 
-![](RackMultipart20200810-4-1opa7w4_html_3d6cb4cab1e080e2.png)
+![Concentration](./assets/A3.MV.11397_day_traffic_concentration.jpg)
 
 ## Prédiction d&#39;indicateurs à l&#39;aide d&#39;un algorithme de classification
 

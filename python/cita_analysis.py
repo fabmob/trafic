@@ -9,10 +9,13 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import pickle
-import math
 from matplotlib import dates
 from datetime import datetime
+from tensorflow import keras
 import networkx as nx
+from sklearn.preprocessing import MinMaxScaler
+import math as math
+from sklearn.metrics import mean_squared_error
 plt.style.use('seaborn')
 
 ################################################################################################
@@ -34,6 +37,9 @@ file_datex_7j = "./object/datex_7j"
 file_datex = 'object/datex'
 file_camera = 'object/camera'
 
+
+def measure_rmse(actual, predicted):
+	return math.sqrt(mean_squared_error(actual, predicted))
 # Load and Save object
 def save(name,obj):
     savefile = open(name, 'wb') 
@@ -311,8 +317,8 @@ for direction in ['outboundFromTown','inboundTowardsTown']:
     plot_mult(datas3,labels,'Date','vehicleFlowRate',file='out/{}_{}_trafficConcentration.png'.format(road,direction)) 
 
 
-toLux = getFilteredData(data,toLuxCam)
-toLux.loc[toLux['dayofweek']<5].groupby(['hour']).mean()['avgVehicleSpeed']
+# toLux = getFilteredData(data,toLuxCam)
+# toLux.loc[toLux['dayofweek']<5].groupby(['hour']).mean()['avgVehicleSpeed']
 
 ######################################################
 ## First Model - Random forest
@@ -445,3 +451,189 @@ print ("---------------------------------------------------------------")
 print ("Predict speed anf flow less than 60% of the average")
 X,y = generateXYspeedAndFlowUnder(df)
 model = train_model(X,y)
+
+
+
+######################################################
+## LSTM
+######################################################
+
+WINDOW = 10
+FORECAST = 1
+
+## Generate X and y
+######################################################
+
+def getSequences(sequence, backward, forward=1):
+    X, y = list(), list()
+    for i in range(len(sequence)-(backward+forward-1)):
+        if forward > 1:
+            seq_x, seq_y = sequence[i:i+backward], sequence[i+backward:i+backward+forward]
+        else:
+            seq_x, seq_y = sequence[i:i+backward], sequence[i+backward]
+        X.append(seq_x)
+        y.append(seq_y)
+    
+    return np.array(X), np.array(y)
+
+
+
+def generateXYfor1cam(cam,pdata,pindexMin='2010-12-02 00:00:00+0000',pindexMax='2030-12-03 00:00:00+0000'):
+    df = getFilteredData(pdata,cam,indexMin=pindexMin,indexMax=pindexMax)
+    df=df[['avgVehicleSpeed', 'vehicleFlowRate']]
+    scaler = MinMaxScaler()
+    scaled = scaler.fit_transform(df)
+    X, y = getSequences(scaled, backward = WINDOW , forward= FORECAST )
+    y =  y[:,:,0]
+    return X , y , scaler
+
+
+def generateXYfor2cam(cam,cam1,pdata,pindexMin='2010-12-02 00:00:00+0000',pindexMax='2030-12-03 00:00:00+0000',scaler=None):
+    
+    df0 = getFilteredData(pdata,cam,indexMin=pindexMin,indexMax=pindexMax)
+    df0=df0[['avgVehicleSpeed', 'vehicleFlowRate']]
+    df1 = getFilteredData(pdata,cam1,indexMin=pindexMin,indexMax=pindexMax)
+    df1=df1[['avgVehicleSpeed', 'vehicleFlowRate']]
+        
+    df1.rename(columns={'avgVehicleSpeed' : 'pre_avgVehicleSpeed', 'vehicleFlowRate' : 'pre_vehicleFlowRate'},inplace=True)
+    df = df0.join(df1,how='inner')
+    df.dropna(inplace=True)
+    if scaler == None:
+        scaler = MinMaxScaler()
+    scaled = scaler.fit_transform(df)
+    X, y = getSequences(scaled, backward = WINDOW , forward= FORECAST )
+    y =  y[:,0]
+    return X , y , scaler
+
+
+
+print("{} Start".format(datetime.today()))
+
+pindexMin = '2000-01-01 00:00:00+0000'
+pindexMax = '2030-01-01 00:00:00+0000'
+
+cam = 'A3.VM.8246' 
+cam1 = 'A3.VM.7280'
+
+WINDOW = 10
+FORECAST = 3
+
+df0 = getFilteredData(data,cam,indexMin=pindexMin,indexMax=pindexMax)
+df0=df0[['avgVehicleSpeed', 'vehicleFlowRate']]
+df1 = getFilteredData(data,cam1,indexMin=pindexMin,indexMax=pindexMax)
+df1=df1[['avgVehicleSpeed', 'vehicleFlowRate']]
+    
+df1.rename(columns={'avgVehicleSpeed' : 'pre_avgVehicleSpeed', 'vehicleFlowRate' : 'pre_vehicleFlowRate'},inplace=True)
+df = df0.join(df1,how='inner')
+df.dropna(inplace=True)
+
+scaler = MinMaxScaler()
+scaled = scaler.fit_transform(df)
+
+X, _ = getSequences(scaled, backward = WINDOW , forward= FORECAST )
+_ , y = getSequences(scaled[:,0], backward = WINDOW , forward= FORECAST )
+
+print("X shape", X.shape," - y shape ", y.shape)
+print("{} fitting ".format(datetime.today()))
+
+X_train = X[1000:]
+X_test = X[:1000]
+y_train = y[1000:]
+y_test = y[:1000]
+model = keras.Sequential()
+model.add(keras.layers.LSTM(128, activation='relu', input_shape=(X.shape[1], X.shape[2])))
+#model.add(keras.layers.Dense(100, activation='relu'))
+model.add(keras.layers.Dense(FORECAST))
+model.compile(loss='mse', optimizer='adam')
+early_stop = keras.callbacks.EarlyStopping(
+        monitor='val_loss',
+        patience=10
+)   
+history = model.fit(
+    X_train,y_train, 
+    epochs=10, 
+    batch_size=64, 
+    validation_split=0.05,
+    shuffle=True,
+    callbacks=[early_stop]
+    )            
+print("{} fitting ".format(datetime.today()))
+
+plt.plot(history.history['loss'], label='train')
+plt.plot(history.history['val_loss'], label='test')
+plt.legend()
+plt.show()
+
+
+y_pred = model.predict(X_test)
+for i in [0,1,2]:
+    print("RMSE + {} minutes= {}".format(i*5+5,measure_rmse(y_test[:,i], (y_pred[:,i]))))
+
+iStart=100
+iStop=200
+for i in [0,1,2]:
+    plt.plot(y_pred[:iStop,i], label='prediction')    
+    plt.plot(y[:iStop,i], label='true')
+    plt.title('prediction + {} minutes'.format(i*5+5))
+    plt.legend()
+    plt.show()
+
+'''
+X_test, y_test , s = generateXYfor2cam(cam,cam1,data,'2019-11-22 00:00:00+0000','2019-11-23 00:00:00+0000',scaler)
+y_test_pred = model.predict(X_test)
+plt.plot(y_test_pred, label='prediction')    
+plt.plot(y_test, label='true')
+plt.legend()
+plt.show()
+
+print("End {}".format(datetime.today()))
+
+
+# cam1 = 'A3.VM.10437'
+# cam = 'A3.VM.11397'
+
+
+cam = 'A3.VM.8246' 
+cam1 = 'A3.VM.7280'
+WINDOW = 10
+FORECAST = 1
+
+# X, y , scaler = generateXYfor1cam('A3.VM.10437',data,pindexMin,pindexMax)
+print("{} generate X , y ".format(datetime.today()))
+X, y , scaler = generateXYfor2cam(cam,cam1,data,pindexMin,pindexMax,None)
+
+print("X shape", X.shape," - y shape ", y.shape)
+print("{} fitting ".format(datetime.today()))
+model = keras.Sequential()
+model.add(keras.layers.LSTM(128, activation='relu', input_shape=(X.shape[1], X.shape[2])))
+#model.add(keras.layers.Dense(100, activation='relu'))
+model.add(keras.layers.Dense(FORECAST))
+model.compile(loss='mse', optimizer='adam')
+early_stop = keras.callbacks.EarlyStopping(
+        monitor='val_loss',
+        patience=10
+)   
+history = model.fit(
+    X, y, 
+    epochs=10, 
+    batch_size=64, 
+    validation_split=0.05,
+    shuffle=True,
+    callbacks=[early_stop]
+    )            
+print("{} fitting ".format(datetime.today()))
+
+plt.plot(history.history['loss'], label='train')
+plt.plot(history.history['val_loss'], label='test')
+plt.legend()
+plt.show()
+
+X_test, y_test , s = generateXYfor2cam(cam,cam1,data,'2019-11-22 00:00:00+0000','2019-11-23 00:00:00+0000',scaler)
+y_test_pred = model.predict(X_test)
+plt.plot(y_test_pred, label='prediction')    
+plt.plot(y_test, label='true')
+plt.legend()
+plt.show()
+
+print("End {}".format(datetime.today()))
+'''
