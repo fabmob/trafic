@@ -238,7 +238,7 @@ Et les trois indicateurs ont été testés sur toutes les caméras de l'A3 avec 
 
 L'ensemble de l'analyse est disponible ici [predict-trafic-flow-from-camera-counting.ipynb](predict-trafic-flow-from-camera-counting.ipynb) 
 
-Cette analyse est publiée pour le compte de la fabmob le site de data science Kaggle : [predict-trafic-flow-from-camera-counting](https://www.kaggle.com/fabmob/predict-trafic-flow-from-camera-counting) 
+Cette analyse est publiée pour le compte de la fabmob sur le site de data science Kaggle : [predict-trafic-flow-from-camera-counting](https://www.kaggle.com/fabmob/predict-trafic-flow-from-camera-counting) 
 
 
 ## Description des données
@@ -246,7 +246,6 @@ Cette analyse est publiée pour le compte de la fabmob le site de data science K
 Les données analysées ont été captées entre le 16/06/2020 et le 07/08/2020.
 
 Chaque heure la caméra relève les données suivantes :
-
 - Pourcentage d&#39;activité de la caméra
 - Comptage des piétons, voitures, vélos, camions (total, gauche et droite de la rue)
 - Histogramme des vitesses des voitures pour les intervalles [0-10[  [10-20[ [20- 30[     .....  [70 et plus [
@@ -274,10 +273,9 @@ Exemple :
 "car_speed_bucket": [0,1,2,3,4,5,6,7]
 ```
 
-Pour une année, cela représente au plus 8760 enregistrements
+Pour une année, cela représente 8760 enregistrements
 
 Cette caméra a des contraintes, car pour réaliser les comptages, elle fait de la reconnaissance d&#39;image :
-
 - La caméra n&#39;est pas active la nuit
 - La caméra n&#39;est pas active 100% du temps en plein jour c&#39;est pourquoi, le pourcentage d&#39;activité est indiqué. Lorsque la caméra est partiellement active, les comptages sont proratisés à l&#39;aide de ce pourcentage pour estimer l&#39;activité dans l&#39;heure observée.
 - La caméra peut être hors de service pendant une période
@@ -286,7 +284,7 @@ La capture des données n&#39;est donc pas en continue comme on peut le voir sur
 
 ![Comptage des voitures](./assets/Car.png)
 
-La stratégie pour combler les valeurs manquantes est de remplacer NaN par la moyenne à la même heure et au même jour de la semaine.
+La stratégie pour combler les valeurs manquantes est de remplacer les valeurs nulles par la moyenne à la même heure et au même jour de la semaine.
 
 ![Comptage ajusté des voitures ](./assets/Adjusted_Car.png)
 
@@ -296,7 +294,7 @@ A partir de l&#39;histogramme des vitesses des voitures, on peut estimer une vit
 
 #### Evolution de la vitesse moyenne
 
-![](./assets/CarSpeed.png.png)
+![](./assets/CarSpeed.png)
 
 #### Maximum de la vitesse moyenne journalière
 
@@ -304,34 +302,26 @@ A partir de l&#39;histogramme des vitesses des voitures, on peut estimer une vit
 
 On peut aussi s&#39;intéresser dans quel sens et à quel moment de la journée la rue est-elle plus passante, en comparant le comptage des voitures à droite et à gauche.
 
-#### somme totale des voitures par heure et par jour
-
+#### Somme totale des voitures par heure et par jour
 ![](./assets/TelraamLeftRightMon.png)
-
 ![](./assets/TelraamLeftRightFri.png)
-
 ![](./assets/TelraamLeftRightSun.png) 
-
 On peut aussi établir des tendances journalières moyennes
 
-#### comptages moyens par heure et par jour :
-
+#### Comptages moyens par heure et par jour :
 ![](./assets/TelraamMeanCarHour.png) 
 ![](./assets/TelraamMeanLorryHour.png) 
 ![](./assets/TelraamMeanPedHour.png) 
 ![](./assets/TelraamMeanBikeHour.png) 
 
-
 ## Prédiction
-
- 
 L'idée est de générer deux jours à l'avance pour voir si nous pouvons capturer la structure répétitive journalière.
 
-Sur le graphique de comptage des voitures, nous voyons que les données sont hiératiques à partir du 21/07. 
+Sur le graphique de comptage des voitures, nous voyons que les données sont erratiques à partir du 21/07. 
 Il n'y a pas suffisamment de données pour savoir si cela est normal, si l'activité en août est très faible ou s'il y a une anomalie de détection. 
-Pour résoudre ce problème, nous aurions besoin de données pour au moins d'une année de données.
+Pour résoudre ce problème, nous aurions besoin d'une année de données.
 
-3 modèles sont entrainés sur une période allant jusqu'au 19/07 et évalués le 20/07 et 21/07
+3 modèles sont entrainés sur une période allant jusqu'au 19/07 et évalués le 20/07 et le 21/07
 
 ### SARIMA
 ![](./assets/TelraamForecastSARIMA.png) 
@@ -364,9 +354,33 @@ les lundis, dimanches et jours fériés de travail, etc.
 **Nous allons donc publier plus de données de cette caméra dans quelques mois, et réessayer**
 
 
-# Description de l&#39;infrastructure
+# Architecture et méthodologie
+
+## Prototypage
+Le présent travail fait parti de la phase de prototypage. 
+
+Cette phase demande de capturer les données afin de constituer un historique et d’alimenter la base en données en temps réel. 
+
+Ces données vont permettre la mise en place de premiers outils de visualisation, d’analyser les données et d’expérimenter des modèles de prédiction.
+
+Cette expérimentation permet alors de comparer les résultats aux attentes, de revoir les objectifs ou de d’améliorer la source de donnée.
 
 ![Prototypage](./assets/architectureDev.jpg)
 
+En terme d'infrastructure technique, cette étape peut être réalisée avec des outils communs : pc personnel de développement et plateformes online type, kaggle ou colab
+
+## Production
+Si le modèle d’analyse est satisfaisant, les données et les prédictions peuvent être mises en ligne pour une consultation en temps réels.
 ![Production](./assets/architectureProd.jpg)
 
+
+
+4 éléments sont à déployer dans un cloud :
+- Le service de captation de données : batch
+- Le service qui expose le modèle d'analyse : micro-service
+- La base de données
+- Un service de visualisation
+
+Cela implique de dédier un temps de maintenance récurrent et peut être un certain cout selon la volumétrie des données et le nombre de visite.
+
+![IaaS](./assets/architectureCloud.jpg)
