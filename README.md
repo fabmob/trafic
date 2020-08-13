@@ -253,26 +253,25 @@ Chaque heure la caméra relève les données suivantes :
 
 Exemple :
 
-Exemple :
 ```
-&quot;segment\_id&quot;: &quot;9000000411&quot;,
-&quot;date&quot;: &quot;2020-07-23T05:00:00.000Z&quot;,
-&quot;pct\_up&quot;: 0.584444444444444,
-&quot;timezone&quot;: &quot;Europe/Paris&quot;,
-&quot;pedestrian&quot;: 27.3764258555133,
-&quot;bike&quot;: 10.2661596958175,
-&quot;car&quot;: 366.15969581749,
-&quot;lorry&quot;: 11.9771863117871,
-&quot;pedestrian\_lft&quot;: 15.3992395437262,
-&quot;bike\_lft&quot;: 0,
-&quot;car\_lft&quot;: 22.2433460076046,
-&quot;lorry\_lft&quot;: 0,
-&quot;pedestrian\_rgt&quot;: 11.9771863117871,
-&quot;bike\_rgt&quot;: 10.2661596958175,
-&quot;car\_rgt&quot;: 343.916349809885,
-&quot;lorry\_rgt&quot;: 11.9771863117871,
-&quot;car\_speed\_histogram&quot;: [10.2661596958175,27.3764258555133,107.794676806084,164.25855513308,34.2205323193916,11.9771863117871,5.13307984790875,5.13307984790875],
-&quot;car\_speed\_bucket&quot;: [0,1,2,3,4,5,6,7]
+"segment_id": "9000000411",
+"date": "2020-07-23T05:00:00.000Z",
+"pct_up": 0.584444444444444,
+"timezone": "Europe/Paris",
+"pedestrian": 27.3764258555133,
+"bike": 10.2661596958175,
+"car": 366.15969581749,
+"lorry": 11.9771863117871,
+"pedestrian_lft": 15.3992395437262,
+"bike_lft": 0,
+"car_lft": 22.2433460076046,
+"lorry_lft": 0,
+"pedestrian_rgt": 11.9771863117871,
+"bike_rgt": 10.2661596958175,
+"car_rgt": 343.916349809885,
+"lorry_rgt": 11.9771863117871,
+"car_speed_histogram": [10.2661596958175,27.3764258555133,107.794676806084,164.25855513308,34.2205323193916,11.9771863117871,5.13307984790875,5.13307984790875],
+"car_speed_bucket": [0,1,2,3,4,5,6,7]
 ```
 
 Pour une année, cela représente au plus 8760 enregistrements
@@ -295,50 +294,74 @@ La stratégie pour combler les valeurs manquantes est de remplacer NaN par la mo
 
 A partir de l&#39;histogramme des vitesses des voitures, on peut estimer une vitesse moyenne.
 
-#### Graphique : évolution de la vitesse moyenne
+#### Evolution de la vitesse moyenne
 
-![](RackMultipart20200810-4-1opa7w4_html_fa5f312cf7a8bcfb.png)
+![](./assets/CarSpeed.png.png)
 
-#### Graphique : maximum de la vitesse moyenne journalière
+#### Maximum de la vitesse moyenne journalière
 
-![](RackMultipart20200810-4-1opa7w4_html_26cef057cd9bd30.png)
-
-#### Graphique : médiane de la vitesse moyenne journalière
-
-![](RackMultipart20200810-4-1opa7w4_html_184a5ac68fab4d3c.png)
+![](./assets/TelraamMaxAvgSpeed.png)
 
 On peut aussi s&#39;intéresser dans quel sens et à quel moment de la journée la rue est-elle plus passante, en comparant le comptage des voitures à droite et à gauche.
 
-#### Graphiques : somme totale des voitures par heure et par jour
+#### somme totale des voitures par heure et par jour
 
-![](RackMultipart20200810-4-1opa7w4_html_87ce78b4052d5a6b.png) ![](RackMultipart20200810-4-1opa7w4_html_6be9f49f48857e59.png) ![](RackMultipart20200810-4-1opa7w4_html_e01fda81321ad9ad.png) ![](RackMultipart20200810-4-1opa7w4_html_a996aa6f0116d4ab.png) ![](RackMultipart20200810-4-1opa7w4_html_4752f50c0ec056f0.png) ![](RackMultipart20200810-4-1opa7w4_html_c46afc56386a18bf.png) ![](RackMultipart20200810-4-1opa7w4_html_2b0e803c98a6ca64.png)
+![](./assets/TelraamLeftRightMon.png)
+
+![](./assets/TelraamLeftRightFri.png)
+
+![](./assets/TelraamLeftRightSun.png) 
 
 On peut aussi établir des tendances journalières moyennes
 
-#### Graphique : comptages moyens par heure et par jour :
+#### comptages moyens par heure et par jour :
 
-![](RackMultipart20200810-4-1opa7w4_html_8463f55391b27fe9.png) ![](RackMultipart20200810-4-1opa7w4_html_955433239c116ea6.png) ![](RackMultipart20200810-4-1opa7w4_html_13b2f06412c36e35.png) ![](RackMultipart20200810-4-1opa7w4_html_8463f55391b27fe9.png)
+![](./assets/TelraamMeanCarHour.png) 
+![](./assets/TelraamMeanLorryHour.png) 
+![](./assets/TelraamMeanPedHour.png) 
+![](./assets/TelraamMeanBikeHour.png) 
 
-## Gestion des valeurs manquantes
-
-Pour utiliser des modèles sur ces séries de comptage, les valeurs manquantes vont être remplacées par la valeur moyenne du jour de la semaine et de l&#39;heure.
-
-#### Graphique : série originale
-
-![](RackMultipart20200810-4-1opa7w4_html_9478c432b01fd6b7.png)
-
-#### Graphique : série ajustée
-
-![](RackMultipart20200810-4-1opa7w4_html_7697ca2b23400222.png)
 
 ## Prédiction
 
+ 
+L'idée est de générer deux jours à l'avance pour voir si nous pouvons capturer la structure répétitive journalière.
 
-# Compte kaggle pour la FabMob
+Sur le graphique de comptage des voitures, nous voyons que les données sont hiératiques à partir du 21/07. 
+Il n'y a pas suffisamment de données pour savoir si cela est normal, si l'activité en août est très faible ou s'il y a une anomalie de détection. 
+Pour résoudre ce problème, nous aurions besoin de données pour au moins d'une année de données.
 
-User : [lafabriquedesmobilites@gmail.com](mailto:lafabriquedesmobilites@gmail.com)
+3 modèles sont entrainés sur une période allant jusqu'au 19/07 et évalués le 20/07 et 21/07
 
-Pwd :
+### SARIMA
+![](./assets/TelraamForecastSARIMA.png) 
+
+### Lissage exponentiel
+![](./assets/TelraamForecastEXPSMOO.png) 
+
+### LSTM
+![](./assets/TelraamForecastLSTM.png) 
+
+### Résultats :
+
+![](./assets/TelraamForecastCOMPARE.png) 
+
+- root mean squared error of SARIMA model     = 133.22233193204906
+- root mean squared error of EXP SMOOTH model = 121.92693224038598
+- root mean squared error of LSTM model       = 114.15276420162749 < BEST
+
+# Conclusion
+Ces comptages de trafic générés par une caméra équipée de reconnaissance d'image peuvent en effet générer des tendances quotidiennes et des prévisions de flux.
+
+Cependant les résultats devraient être beaucoup plus fiables si les données historiques étaient suffisantes pour observer toute la saisonnalité de ces séries, plus d'un an.
+
+L'algorithme LTSM qui prédit une ou plusieurs valeurs futures à partir d'une fenêtre sur le passé serait plus fiable.
+
+Et avec l'aide de SARIMA ou EXP_SMOO, plus de données pourraient être générées à l'avenir pour capturer les tendances. 
+Enfin, avec plus de données, nous pourrions créer des sous-séries ayant des schémas quotidiens très similaires pour réaliser des modèles prédictifs ciblés: 
+les lundis, dimanches et jours fériés de travail, etc. 
+
+**Nous allons donc publier plus de données de cette caméra dans quelques mois, et réessayer**
 
 
 # Description de l&#39;infrastructure
