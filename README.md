@@ -40,6 +40,34 @@ Pour la partie analyse, les outils utilisés sont les librairies python de « ma
 
 Les livrables pour cette solution d&#39;alimentation sont le code source (java + sql), la documentation de la mise en œuvre et des exemples de Dashboard de visualisation.
 
+# Architecture et méthodologie
+
+## Prototypage
+**Le présent travail fait parti de la phase de prototypage.**
+
+Cette phase demande de capturer les données afin de constituer un historique et d’alimenter la base en données en temps réel. 
+
+Ces données vont permettre la mise en place de premiers outils de visualisation, d’analyser les données et d’expérimenter des modèles de prédiction.
+
+Cette expérimentation permet alors de comparer les résultats aux attentes, de revoir les objectifs ou de d’améliorer la source de donnée.
+
+![Prototypage](./assets/architectureDev.jpg)
+
+En terme d'infrastructure technique, cette étape peut être réalisée avec des outils communs : pc personnel de développement et plateformes online type, kaggle ou colab
+
+## Production
+Si le modèle d’analyse est satisfaisant, les données et les prédictions peuvent être mises en ligne pour une consultation en temps réels.
+![Production](./assets/architectureProd.jpg)
+
+4 éléments sont à déployer dans un cloud :
+- Le service de captation de données : batch
+- Le service qui expose le modèle d'analyse : micro-service
+- La base de données
+- Un service de visualisation
+
+Cela implique de dédier un temps de maintenance récurrent et peut être un certain cout selon la volumétrie des données et le nombre de visite.
+
+![IaaS](./assets/architectureCloud.jpg)
 
 # Description des données à disposition en Open Data
 
@@ -120,9 +148,9 @@ Documentation de l&#39;API : [https://telraam.zendesk.com/hc/en-us/articles/3600
 
 Remarque : ce paragraphe décrit des données disponibles utilisables pour la prédiction du trafic. Dans la suite, uniquement les données issues des caméras sont utilisées pour cette exploration (Données cita du trafic des autoroutes Lux + Données telraam du trafic place général de gaulle)
 
-# Capture des données
+# Visualisation
 
-## Description
+#### Capture des données
 
 ![Schema](./assets/CaptureSchema.png)
 La solution technique  est décrite ici [READMEBATCH.md](READMEBATCH.md)
@@ -136,11 +164,11 @@ L'idée est de capter les données décrites ci-dessus et de visualiser les donn
 
 L'ensemble de l'analyse est disponible ici [traffic-prediction-in-luxembourg.ipynb](traffic-prediction-in-luxembourg.ipynb) 
 
-Cette analyse est publiée pour le compte de la fabmob le site de data science Kaggle : [traffic-prediction-in-luxembourg](https://www.kaggle.com/fabmob/traffic-prediction-in-luxembourg) 
+Cette analyse est publiée pour le compte de la fabmob sur le site de data science Kaggle : [traffic-prediction-in-luxembourg](https://www.kaggle.com/fabmob/traffic-prediction-in-luxembourg) 
 
 ## Description des données
 
-Les données analysées ont été captées sur les 186 caméras mises à disposition en Open Data par cita.lu entre le 19/11/2019 et le 26/12/2019.
+Les données analysées ont été captées par les 186 caméras mises à disposition en Open Data par cita.lu entre le 19/11/2019 et le 26/12/2019.
 
 Les données de chaque caméra sont mises à jour toutes les 5 minutes.
 
@@ -340,7 +368,8 @@ Pour résoudre ce problème, nous aurions besoin d'une année de données.
 - root mean squared error of EXP SMOOTH model = 121.92693224038598
 - root mean squared error of LSTM model       = 114.15276420162749 < BEST
 
-# Conclusion
+# Conclusion de cette première phase de prototypage
+
 Ces comptages de trafic générés par une caméra équipée de reconnaissance d'image peuvent en effet générer des tendances quotidiennes et des prévisions de flux.
 
 Cependant les résultats devraient être beaucoup plus fiables si les données historiques étaient suffisantes pour observer toute la saisonnalité de ces séries, plus d'un an.
@@ -354,33 +383,4 @@ les lundis, dimanches et jours fériés de travail, etc.
 **Nous allons donc publier plus de données de cette caméra dans quelques mois, et réessayer**
 
 
-# Architecture et méthodologie
 
-## Prototypage
-Le présent travail fait parti de la phase de prototypage. 
-
-Cette phase demande de capturer les données afin de constituer un historique et d’alimenter la base en données en temps réel. 
-
-Ces données vont permettre la mise en place de premiers outils de visualisation, d’analyser les données et d’expérimenter des modèles de prédiction.
-
-Cette expérimentation permet alors de comparer les résultats aux attentes, de revoir les objectifs ou de d’améliorer la source de donnée.
-
-![Prototypage](./assets/architectureDev.jpg)
-
-En terme d'infrastructure technique, cette étape peut être réalisée avec des outils communs : pc personnel de développement et plateformes online type, kaggle ou colab
-
-## Production
-Si le modèle d’analyse est satisfaisant, les données et les prédictions peuvent être mises en ligne pour une consultation en temps réels.
-![Production](./assets/architectureProd.jpg)
-
-
-
-4 éléments sont à déployer dans un cloud :
-- Le service de captation de données : batch
-- Le service qui expose le modèle d'analyse : micro-service
-- La base de données
-- Un service de visualisation
-
-Cela implique de dédier un temps de maintenance récurrent et peut être un certain cout selon la volumétrie des données et le nombre de visite.
-
-![IaaS](./assets/architectureCloud.jpg)
