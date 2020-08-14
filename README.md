@@ -370,17 +370,45 @@ Pour résoudre ce problème, nous aurions besoin d'une année de données.
 
 # Conclusion de cette première phase de prototypage
 
-Ces comptages de trafic générés par une caméra équipée de reconnaissance d'image peuvent en effet générer des tendances quotidiennes et des prévisions de flux.
+L’observation des données du trafic, que ce soit le flux ou la vitesse nous montre que plusieurs axes d’exploration sont possibles :
+- Découverte de tendances à long terme : observe-t-on que la circulation augmente ?
+- Découverte de saisonnalités : la vitesse moyenne ou le flux de voitures ont des patterns récurrents. Ces patterns peuvent être fonction des mois, des jours de la semaine, des jours fériés ou des heures de la journée. 
+- Découverte de dynamique à court terme en observant les données sur une courte fenêtre de temps passé, par exemple 10 itérations en arrières. Deux types de prédiction peuvent être joués : prévoir une donnée, par exemple le flux des voitures dans 1,2 ou 3 itérations dans le futur, ou prévoir un événement, par exemple la chute de la vitesse moyenne en dessous d’un seuil.
 
-Cependant les résultats devraient être beaucoup plus fiables si les données historiques étaient suffisantes pour observer toute la saisonnalité de ces séries, plus d'un an.
+**Avoir assez de données**
+Pour mener à bien ces prévisions, le premier critère est d’avoir assez de données représentatives, cela implique une période suffisamment longue pour capter les tendances et les saisonnalités. Pour des données de trafic, cela veut dire plus d’une année.
 
-L'algorithme LTSM qui prédit une ou plusieurs valeurs futures à partir d'une fenêtre sur le passé serait plus fiable.
+**&#171; Combler les trous &#187;**
+Ensuite il y a le problème de la qualité des données : les données des caméras Telraam sont discontinues, or pour appliquer des modèles d’analyse de série temporelle, il faut mettre en place une stratégie pour &#171; combler les trous &#187;. Ce peut être, répéter la dernière valeur connue ou encore prendre la moyenne des valeurs à la même heure et le même jour de la semaine, etc. 
 
-Et avec l'aide de SARIMA ou EXP_SMOO, plus de données pourraient être générées à l'avenir pour capturer les tendances. 
-Enfin, avec plus de données, nous pourrions créer des sous-séries ayant des schémas quotidiens très similaires pour réaliser des modèles prédictifs ciblés: 
-les lundis, dimanches et jours fériés de travail, etc. 
+**Quelles prévisions a-t-on tenté de faire ?**
+Sur les données CITA, une prédiction des événements suivants a été tentée :
+- Un ralentissement : baisse de la vitesse de 20% (par rapport à maintenant) dans 15 minutes.
+- Un potentiel bouchon : baisse de la vitesse de 60% (par rapport à la vitesse moyenne globale) dans 15 minutes.
+- Un bouchon : baisse de la vitesse et du flow de 60% (par rapport à la moyenne globale) dans 15 minutes.
+- 
+Sur les données CITA, et TELRAAM, prévoir le flux (et la vitesse pour cita) à court terme en observant les données dans une courte fenêtre de temps passé.
 
-**Nous allons donc publier plus de données de cette caméra dans quelques mois, et réessayer**
+**Résultats**
+> La formation d'un seul modèle pour toutes les caméras en même temps ne donne pas un bon résultat. La dynamique de chaque point de l'autoroute est différente. Donc il faut entrainer 1 modèle par caméra.
 
+> Dans les variables en entrée du modèle, les prévisions sont plus fiables si les données de la caméra en amont ont été ajoutées.
 
+> L’événement qui donne les meilleurs résultats est « baisse de la vitesse de 60% (par rapport à la vitesse moyenne globale) dans 15 minutes. » L’évènement ralentissement est difficile à capter, et l’événement « bouchon à coup sûr » est peut-être trop rare.
+
+> Le modèle qui donne les meilleurs résultats pour prédire une donnée à 15 minutes est le réseau de neurone récurrent LSTM. Ce qui assez logique puisqu’il est conçu en ce sens.
+
+La difficulté rencontrée est néanmoins le manque d’historique de données pour les données Cita et Telraam afin d’observer toutes les saisonnalités. Avec plus de données, 
+- L’algorithme LTSM qui prédit une ou plusieurs valeurs futures à partir d’une fenêtre dans le passé serait plus fiable.
+- Et à l’aide de SARIMA or EXP_SMOO, plus de données dans le futur pourrait être générées pour capter les tendances.
+Enfin avec plus de données, nous pourrions créer des sous séries qui ont des motifs journaliers très semblable pour faire des modèles prédictifs ciblées : les lundis ouvrés, les dimanches et jours fériés etc.
+
+**Pour aller plus loin**
+Cette première expérimentation est basée sur un apprentissage supervisé. Cela demande un historique de données, et l’écueil vient du fait qu’il faut un historique suffisamment long pour avoir une fiabilité suffisante.
+
+Une autre approche serait de partir avec un historique court (ce que nous avons) et d’améliorer le modèle au fur et à mesure. Cela implique d’avoir un modèle peu fiable au début et de l’entrainer online. La fiabilité va alors s’améliorer au fil de la capture des données. (Un risque serait qu’elle n’atteigne pas l’objectif escompté.)
+
+Cette approche peut être tentée selon deux méthodes : 
+- Apprentissage online récurrent :  les modèles utilisés sont les mêmes que ceux utilisés précédemment mais une infrastructure spécifique est mise en place pour entrainer tous les jours les modèles avec les nouvelles données.
+- Apprentissage par renforcement : ceux sont des modèles particuliers qui apprennent de l’expérience de leur environnement (notamment  utilisé pour les robots). A voir si cela peut s’appliquer aux séries temporelles.
 
