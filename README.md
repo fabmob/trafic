@@ -21,7 +21,7 @@ A partir de ces données, les questions à explorer sont
 
 Ce document résume les résultats de cette analyse.
 
-D&#39;un point de vue technique, le premier objectif est de développer une solution de captation de données, afin de valider la faisabilité et le faible cout de mise en œuvre d&#39;une telle solution à l&#39;aide des outils Open Source
+D&#39;un point de vue technique, le premier objectif est de développer une solution de captation de données, afin de valider la faisabilité et le faible coût de mise en œuvre d&#39;une telle solution à l&#39;aide des outils Open Source
 
 
 # Livrables
@@ -43,20 +43,20 @@ Les livrables pour cette solution d&#39;alimentation sont le code source (java +
 # Architecture et méthodologie
 
 ## Prototypage
-**Le présent travail fait parti de la phase de prototypage.**
+**Le présent travail fait partie de la phase de prototypage.**
 
 Cette phase demande de capturer les données afin de constituer un historique et d’alimenter la base en données en temps réel. 
 
 Ces données vont permettre la mise en place de premiers outils de visualisation, d’analyser les données et d’expérimenter des modèles de prédiction.
 
-Cette expérimentation permet alors de comparer les résultats aux attentes, de revoir les objectifs ou de d’améliorer la source de donnée.
+Cette expérimentation permet alors de comparer les résultats aux attentes, de revoir les objectifs ou d’améliorer la source de données.
 
 ![Prototypage](./assets/architectureDev.jpg)
 
 En terme d'infrastructure technique, cette étape peut être réalisée avec des outils communs : pc personnel de développement et plateformes online type, kaggle ou colab
 
 ## Production
-Si le modèle d’analyse est satisfaisant, les données et les prédictions peuvent être mises en ligne pour une consultation en temps réels.
+Si le modèle d’analyse est satisfaisant, les données et les prédictions peuvent être mises en ligne pour une consultation en temps réel.
 ![Production](./assets/architectureProd.jpg)
 
 4 éléments sont à déployer dans un cloud :
@@ -65,7 +65,7 @@ Si le modèle d’analyse est satisfaisant, les données et les prédictions peu
 - La base de données
 - Un service de visualisation
 
-Cela implique de dédier un temps de maintenance récurrent et peut être un certain cout selon la volumétrie des données et le nombre de visite.
+Cela implique de dédier un temps de maintenance récurrent et peut être un certain coût selon la volumétrie des données et le nombre de visites.
 
 ![IaaS](./assets/architectureCloud.jpg)
 
@@ -78,7 +78,7 @@ L&#39; administration des Ponts et Chaussées du Luxembourg met à disposition u
 
 ![www.cita.lu](./assets/motorwayLux.png)
 
-Les données suivantes peuvent être interrogées en temps réels au format DATEX II, format de données de trafic routier (norme européenne) (DATEX II : [http://trafic-routier.data.cerema.fr/la-norme-europeenne-datex-ii-a58.html](http://trafic-routier.data.cerema.fr/la-norme-europeenne-datex-ii-a58.html) )
+Les données suivantes peuvent être interrogées en temps réel au format DATEX II, format de données de trafic routier (norme européenne) (DATEX II : [http://trafic-routier.data.cerema.fr/la-norme-europeenne-datex-ii-a58.html](http://trafic-routier.data.cerema.fr/la-norme-europeenne-datex-ii-a58.html) )
 
 - Données du trafic des autoroutes
 - Données des événements trafic
@@ -104,15 +104,15 @@ Format : XML DATEX II
 ### Données des événements trafic
 L&#39;API donne la liste des événements (situation) en cours.
 
-On peut trouver les données suivantes à dispositions pour chaque situation, identifiant de la situation, timestamp de la création de la situation, position, description de l&#39;événement.
- La description complète des données disponible est décrite ici : [https://diffusion-numerique.info-routiere.gouv.fr/IMG/pdf/interface-datexii-avectipi-2017-171124.pdf](https://diffusion-numerique.info-routiere.gouv.fr/IMG/pdf/interface-datexii-avectipi-2017-171124.pdf)
+On peut trouver les données suivantes à disposition pour chaque situation, identifiant de la situation, timestamp de la création de la situation, position, description de l&#39;événement.
+ La description complète des données disponibles est décrite ici : [https://diffusion-numerique.info-routiere.gouv.fr/IMG/pdf/interface-datexii-avectipi-2017-171124.pdf](https://diffusion-numerique.info-routiere.gouv.fr/IMG/pdf/interface-datexii-avectipi-2017-171124.pdf)
 
 Le format est en XML DATEX II
  URL : [https://www.cita.lu/info\_trafic/datex/situationrecord](https://www.cita.lu/info_trafic/datex/situationrecord)
 
 ### Données météo
 
-L&#39;API donne des informations météos pour un ensemble de point de mesure.
+L&#39;API donne des informations météo pour un ensemble de points de mesure.
 
 - Identifiant du point de mesure
 - Timestamp de la mesure
@@ -131,11 +131,11 @@ Le format est en XML DATEX II
 [https://www.telraam.net/fr/location/9000000411](https://www.telraam.net/fr/location/9000000411)
 
 
-Cette caméra fait partie du dispositif Telraam qui met à disposition des citoyens intéressés des caméras de comptage. ([https://www.telraam.net/fr/what-is-telraam](https://www.telraam.net/fr/what-is-telraam))
+Cette caméra fait partie du dispositif Telraam qui met à disposition des citoyens intéressés, des caméras de comptage. ([https://www.telraam.net/fr/what-is-telraam](https://www.telraam.net/fr/what-is-telraam))
 
 ![telraam](./assets/telraam.jpg)
 
-Chaque heure la caméra relève les données suivantes :
+Chaque heure, la caméra relève les données suivantes :
 
 - Pourcentage d&#39;activité de la caméra
 - Comptage des piétons, voitures, vélos, camions (total, gauche et droite de la rue)
@@ -146,7 +146,8 @@ Le format est en JSON
 
 Documentation de l&#39;API : [https://telraam.zendesk.com/hc/en-us/articles/360027325572-Want-more-data-Telraam-API](https://telraam.zendesk.com/hc/en-us/articles/360027325572-Want-more-data-Telraam-API)
 
-Remarque : ce paragraphe décrit des données disponibles utilisables pour la prédiction du trafic. Dans la suite, uniquement les données issues des caméras sont utilisées pour cette exploration (Données cita du trafic des autoroutes Lux + Données telraam du trafic place général de gaulle)
+Remarque : ce paragraphe décrit des données disponibles utilisables pour la prédiction du trafic. 
+Dans la suite, uniquement les données issues des caméras sont utilisées pour cette exploration (Données cita du trafic des autoroutes Lux + Données telraam du trafic place général de gaulle)
 
 # Visualisation
 
@@ -172,7 +173,7 @@ Les données analysées ont été captées par les 186 caméras mises à disposi
 
 Les données de chaque caméra sont mises à jour toutes les 5 minutes.
 
-Pour cette période, cela représente un jeu de donnée de 1 887 379 enregistrements.
+Pour cette période, cela représente un jeu de données de 1 887 379 enregistrements.
 
 Si on extrapole à 1 année, cela représente environ 18 130 000 enregistrements.
 
@@ -184,7 +185,8 @@ Les 3 mesures disponibles pour chaque caméra toutes les 5 minutes sont :
 
 ## Exploration graphique
 
-Les graphiques suivants tracent ces 3 mesures pour la caméra au kilomètre 11 de l&#39;A3, cette caméra se situe à la frontière de la France et du Luxembourg. Le trafic à la frontière connait des surcharges journalières le matin vers le Luxembourg et le soir vers la France.
+Les graphiques suivants tracent ces 3 mesures pour la caméra au kilomètre 11 de l&#39;A3, cette caméra se situe à la frontière de la France et du Luxembourg. 
+Le trafic à la frontière connait des surcharges journalières le matin vers le Luxembourg et le soir vers la France.
 
 Vitesse moyenne en km/h sur 4 semaines (2019-11-25 au 2019-12-23) par jour, d&#39;abord vers le Luxembourg, puis vers la France
 
@@ -206,9 +208,9 @@ Cette première analyse se concentre sur la prédiction d&#39;indicateurs. Ces t
 - Baisse de la vitesse de 60% (par rapport à la vitesse moyenne globale) dans 15 minutes.
 - Baisse de la vitesse et du flow de 60% (par rapport à la moyenne globale) dans 15 minutes.
 
-Ces trois indicateurs tentent de qualifier respectivement un ralentissement, un potentiel bouchon, plus surement un bouchon.
+Ces trois indicateurs tentent de qualifier respectivement un ralentissement, un potentiel bouchon, plus sûrement un bouchon.
 
-Pour entrainer le modèle, les données suivantes ont été produites à partir des observations.
+Pour entraîner le modèle, les données suivantes ont été produites à partir des observations.
 
 A un instant t, pour une caméra,
 
@@ -230,10 +232,10 @@ A un instant t, pour une caméra,
 
 Les tests préliminaires de prédiction ont apporté les deux constats suivants :
 
-- Entrainer 1 seul modèle pour toutes les caméras en même temps ne donnent pas de bon résultat. Les dynamiques de chaque point de l&#39;autoroute sont différentes.
+- Entrainer 1 seul modèle pour toutes les caméras en même temps ne donne pas de bons résultats. Les dynamiques de chaque point de l&#39;autoroute sont différentes.
 - Dans les variables d&#39;une observation, si on ne prend que les données de la caméra, les prédictions à 15 minutes sont peu fiables. C&#39;est pourquoi, les données de la caméra en amont ont été ajoutées.
 
-L&#39;algorithme choisi est le « Random Forest », un algorithme de classification, basés sur l&#39;agrégation d&#39;arbre de décisions.
+L&#39;algorithme choisi est le « Random Forest », un algorithme de classification, basé sur l&#39;agrégation d&#39;arbres de décisions.
 
 Les métriques utilisées pour mesurer la fiabilité des prédictions sont les suivantes :
 
@@ -306,9 +308,9 @@ Pour une année, cela représente 8760 enregistrements
 Cette caméra a des contraintes, car pour réaliser les comptages, elle fait de la reconnaissance d&#39;image :
 - La caméra n&#39;est pas active la nuit
 - La caméra n&#39;est pas active 100% du temps en plein jour c&#39;est pourquoi, le pourcentage d&#39;activité est indiqué. Lorsque la caméra est partiellement active, les comptages sont proratisés à l&#39;aide de ce pourcentage pour estimer l&#39;activité dans l&#39;heure observée.
-- La caméra peut être hors de service pendant une période
+- La caméra peut être hors service pendant une période
 
-La capture des données n&#39;est donc pas en continue comme on peut le voir sur le graphique de comptage des voitures sur cette période.
+La capture des données n&#39;est donc pas en continu comme on peut le voir sur le graphique de comptage des voitures sur cette période.
 
 ![Comptage des voitures](./assets/Car.png)
 
@@ -328,7 +330,7 @@ A partir de l&#39;histogramme des vitesses des voitures, on peut estimer une vit
 
 ![](./assets/TelraamMaxAvgSpeed.png)
 
-On peut aussi s&#39;intéresser dans quel sens et à quel moment de la journée la rue est-elle plus passante, en comparant le comptage des voitures à droite et à gauche.
+On peut aussi s&#39;intéresser dans quel sens et à quel moment de la journée la rue est la plus passante, en comparant le comptage des voitures à droite et à gauche.
 
 #### Somme totale des voitures par heure et par jour
 ![](./assets/TelraamLeftRightMon.png)
@@ -370,15 +372,17 @@ Pour résoudre ce problème, nous aurions besoin d'une année de données.
 
 # Conclusion de cette première phase de prototypage
 
-L’observation des données du trafic, que ce soit le flux ou la vitesse nous montre que plusieurs axes d’exploration sont possibles :
+L’observation des données du trafic, que ce soit le flux ou la vitesse, nous montre que plusieurs axes d’exploration sont possibles :
 - Découverte de tendances à long terme : observe-t-on que la circulation augmente ?
 - Découverte de saisonnalités : la vitesse moyenne ou le flux de voitures ont des patterns récurrents. Ces patterns peuvent être fonction des mois, des jours de la semaine, des jours fériés ou des heures de la journée. 
 - Découverte de dynamique à court terme en observant les données sur une courte fenêtre de temps passé, par exemple 10 itérations en arrières. Deux types de prédiction peuvent être joués : prévoir une donnée, par exemple le flux des voitures dans 1,2 ou 3 itérations dans le futur, ou prévoir un événement, par exemple la chute de la vitesse moyenne en dessous d’un seuil.
 
 **Avoir assez de données**
+
 Pour mener à bien ces prévisions, le premier critère est d’avoir assez de données représentatives, cela implique une période suffisamment longue pour capter les tendances et les saisonnalités. Pour des données de trafic, cela veut dire plus d’une année.
 
 **&#171; Combler les trous &#187;**
+
 Ensuite il y a le problème de la qualité des données : les données des caméras Telraam sont discontinues, or pour appliquer des modèles d’analyse de série temporelle, il faut mettre en place une stratégie pour &#171; combler les trous &#187;. Ce peut être, répéter la dernière valeur connue ou encore prendre la moyenne des valeurs à la même heure et le même jour de la semaine, etc. 
 
 **Quelles prévisions a-t-on tenté de faire ?**
@@ -386,7 +390,7 @@ Sur les données CITA, une prédiction des événements suivants a été tentée
 - Un ralentissement : baisse de la vitesse de 20% (par rapport à maintenant) dans 15 minutes.
 - Un potentiel bouchon : baisse de la vitesse de 60% (par rapport à la vitesse moyenne globale) dans 15 minutes.
 - Un bouchon : baisse de la vitesse et du flow de 60% (par rapport à la moyenne globale) dans 15 minutes.
-- 
+
 Sur les données CITA, et TELRAAM, prévoir le flux (et la vitesse pour cita) à court terme en observant les données dans une courte fenêtre de temps passé.
 
 **Résultats**
@@ -398,12 +402,13 @@ Sur les données CITA, et TELRAAM, prévoir le flux (et la vitesse pour cita) à
 
 > Le modèle qui donne les meilleurs résultats pour prédire une donnée à 15 minutes est le réseau de neurone récurrent LSTM. Ce qui assez logique puisqu’il est conçu en ce sens.
 
-La difficulté rencontrée est néanmoins le manque d’historique de données pour les données Cita et Telraam afin d’observer toutes les saisonnalités. Avec plus de données, 
+La difficulté rencontrée est néanmoins le manque d’historique de données afin d’observer toutes les saisonnalités. Avec plus de données, 
 - L’algorithme LTSM qui prédit une ou plusieurs valeurs futures à partir d’une fenêtre dans le passé serait plus fiable.
-- Et à l’aide de SARIMA or EXP_SMOO, plus de données dans le futur pourrait être générées pour capter les tendances.
-Enfin avec plus de données, nous pourrions créer des sous séries qui ont des motifs journaliers très semblable pour faire des modèles prédictifs ciblées : les lundis ouvrés, les dimanches et jours fériés etc.
+- Et à l’aide de SARIMA or EXP_SMOO, plus de données dans le futur pourraient être générées pour capter les tendances.
+Enfin avec plus de données, nous pourrions créer des sous séries qui ont des motifs journaliers très semblables pour faire des modèles prédictifs ciblés : les lundis ouvrés, les dimanches et jours fériés etc.
 
 **Pour aller plus loin**
+
 Cette première expérimentation est basée sur un apprentissage supervisé. Cela demande un historique de données, et l’écueil vient du fait qu’il faut un historique suffisamment long pour avoir une fiabilité suffisante.
 
 Une autre approche serait de partir avec un historique court (ce que nous avons) et d’améliorer le modèle au fur et à mesure. Cela implique d’avoir un modèle peu fiable au début et de l’entrainer online. La fiabilité va alors s’améliorer au fil de la capture des données. (Un risque serait qu’elle n’atteigne pas l’objectif escompté.)
