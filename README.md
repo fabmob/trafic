@@ -408,7 +408,5 @@ Cette première expérimentation est basée sur un apprentissage supervisé. Cel
 
 Une autre approche serait de partir avec un historique court (ce que nous avons) et d’améliorer le modèle au fur et à mesure. Cela implique d’avoir un modèle peu fiable au début et de l’entrainer online. La fiabilité va alors s’améliorer au fil de la capture des données. (Un risque serait qu’elle n’atteigne pas l’objectif escompté.)
 
-Cette approche peut être tentée selon deux méthodes : 
-- Apprentissage online récurrent :  les modèles utilisés sont les mêmes que ceux utilisés précédemment mais une infrastructure spécifique est mise en place pour entrainer tous les jours les modèles avec les nouvelles données.
-- Apprentissage par renforcement : ceux sont des modèles particuliers qui apprennent de l’expérience de leur environnement (notamment  utilisé pour les robots). A voir si cela peut s’appliquer aux séries temporelles.
+Cette approche peut être tentée avec un apprentissage online récurrent : les modèles utilisés sont les mêmes que ceux utilisés précédemment mais une infrastructure spécifique est mise en place pour entrainer tous les jours les modèles avec les nouvelles données.
 
