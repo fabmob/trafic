@@ -3,6 +3,9 @@
 Created on Wed Aug  5 08:52:19 2020
 
 @author: YannCLAUDEL
+
+ceci est le code brute python de l'analyse 
+traffic-prediction-in-luxembourg.ipynb
 """
 
 import numpy as np
@@ -37,7 +40,13 @@ file_datex_7j = "./object/datex_7j"
 file_datex = 'object/datex'
 file_camera = 'object/camera'
 
-
+#  Utility functions used in this notebook
+# Describe Data
+def describeData(data):
+    print("shape = {}".format(data.shape))
+    description = data.describe().T
+    description["isNull"] = data.isnull().sum()
+    print(description)
 def measure_rmse(actual, predicted):
 	return math.sqrt(mean_squared_error(actual, predicted))
 # Load and Save object
@@ -81,7 +90,6 @@ def plot_long_serie(data,title='',label='',xlabel='Time',ylabel='',file='temp.jp
     ax.grid(True)
     fig.savefig(file)
     # plt.show()
-
 
 def plot_day_traffic(data0,data1,titles,file,dpi=200):    
     fig, axes = plt.subplots(2, 7, figsize=(20,10),dpi=dpi)    
@@ -200,7 +208,7 @@ def printMap(G,file='temp.jpg',title=""):
 
 frames=[]
 for file in files:
-    print(file + ' start')
+
     df = pd.read_csv(file, parse_dates = False, header = None,sep=';')
     df.columns=['id','time','latitude','longitude','direction','road','trafficStatus','avgVehicleSpeed','vehicleFlowRate','trafficConcentration']
     df.loc[df['time'].str.len()<25,'time']=pd.NaT
@@ -219,7 +227,7 @@ for file in files:
     df['direction_dist']=pd.to_numeric(new[2])    
     # df=df[~camera.index.duplicated()]
     frames.append(df)
-    print(file + ' end')
+    print(file + ': end loading {} rows '.format(df.shape[0]))
 data = pd.concat(frames)
 
 data.dropna(inplace=True)
@@ -230,25 +238,36 @@ camera=camera[~camera.index.duplicated()]
 save(file_camera,camera)
 save(file_datex,data)
 del(new,frames,file,df)
+data.head(5)
+
+print("min index is",data.index.min())
+print("max index is",data.index.max())
+nRow, nCol = data.shape
+print(f'There are {nRow} rows and {nCol} columns in the dataset')
+
+nRow, nCol = camera.shape
+print(f'There are {nRow} rows and {nCol} columns in camera dataset')
+camera.head(5)
+
+################################################################################################
+#  Print the cameras map
+################################################################################################
+
+GFrom = getGraph(camera,direction="outboundFromTown")
+GTo = getGraph(camera,direction="inboundTowardsTown")
+
+printMap(GTo,file='out/CitaluxCamTo.png',title="Cameras - direction = to Luxembourg")
+printMap(GFrom,file='out/CitaluxCamFrom.png',title="Cameras - direction = From Luxembourg")
 
 ################################################################################################
 # Explore data
 ################################################################################################
 
 road = 'A3'
-  
 fromLuxCam = 'A3.VM.11397'
 toLuxCam = 'A3.MV.11397'
 fromDate = '2019-11-25 00:00:00+0000'
 toDate = '2019-12-23 00:00:00+0000'
-print("min index is",data.index.min())
-print("max index is",data.index.max())
-
-GFrom = getGraph(camera,direction="outboundFromTown")
-GTo = getGraph(camera,direction="inboundTowardsTown")
-
-printMap(GTo,file='out/lucCamTo.png',title="Cameras - direction = to Luxembourg")
-printMap(GFrom,file='out/lucCamFrom.png',title="Cameras - direction = From Luxembourg")
 
 fromLux = getFilteredData(data,fromLuxCam,fromDate,toDate)
 toLux = getFilteredData(data,toLuxCam,fromDate,toDate)
@@ -272,19 +291,19 @@ print("min index is",fromLux.index.min())
 print("max index is",fromLux.index.max())
 
 
-plot_long_serie(fromLux_rolling_avg,title='From LUX camera={}'.format(fromLuxCam),label='Average Vehicle Speed',xlabel='Date',ylabel='Speed',file='out/{}_avgVehicleSpeed.png'.format(fromLuxCam))
-plot_long_serie(fromLux_rolling_flow,title='From LUX camera={}'.format(fromLuxCam),label='Vehicle Flow Rate',xlabel='Date',ylabel='Rate',file='out/{}_vehicleFlowRate.png'.format(fromLuxCam))
-plot_long_serie(fromLux_rolling_traf,title='From LUX camera={}'.format(fromLuxCam),label='Traffic Concentration',xlabel='Date',ylabel='Concentration',file='out/{}_trafficConcentration.png'.format(fromLuxCam))
+plot_long_serie(fromLux_rolling_avg,title='From LUX camera={}'.format(fromLuxCam),label='Average Vehicle Speed',xlabel='Date',ylabel='Speed',file='out/Cita{}_avgVehicleSpeed.png'.format(fromLuxCam))
+plot_long_serie(fromLux_rolling_flow,title='From LUX camera={}'.format(fromLuxCam),label='Vehicle Flow Rate',xlabel='Date',ylabel='Rate',file='out/Cita{}_vehicleFlowRate.png'.format(fromLuxCam))
+plot_long_serie(fromLux_rolling_traf,title='From LUX camera={}'.format(fromLuxCam),label='Traffic Concentration',xlabel='Date',ylabel='Concentration',file='out/Cita{}_trafficConcentration.png'.format(fromLuxCam))
 
-plot_long_serie(toLux_rolling_avg,title='To LUX camera={}'.format(toLuxCam),label='Average Vehicle Speed',xlabel='Date',ylabel='Speed',file='out/{}_avgVehicleSpeed.png'.format(toLuxCam))
-plot_long_serie(toLux_rolling_flow,title='To LUX camera={}'.format(toLuxCam),label='Vehicle Flow Rate',xlabel='Date',ylabel='Rate',file='out/{}_vehicleFlowRate.png'.format(toLuxCam))
-plot_long_serie(toLux_rolling_traf,title='To LUX camera={}'.format(toLuxCam),label='Traffic Concentration',xlabel='Date',ylabel='Concentration',file='out/{}_trafficConcentration.png'.format(toLuxCam))
+plot_long_serie(toLux_rolling_avg,title='To LUX camera={}'.format(toLuxCam),label='Average Vehicle Speed',xlabel='Date',ylabel='Speed',file='out/Cita{}_avgVehicleSpeed.png'.format(toLuxCam))
+plot_long_serie(toLux_rolling_flow,title='To LUX camera={}'.format(toLuxCam),label='Vehicle Flow Rate',xlabel='Date',ylabel='Rate',file='out/Cita{}_vehicleFlowRate.png'.format(toLuxCam))
+plot_long_serie(toLux_rolling_traf,title='To LUX camera={}'.format(toLuxCam),label='Traffic Concentration',xlabel='Date',ylabel='Concentration',file='out/Cita{}_trafficConcentration.png'.format(toLuxCam))
 
 titles=['Monday','Tueday','Wednesday','Thursday','Friday','Saturday','Sunday']
 
-plot_day_traffic(toLux_rolling_avg,fromLux_rolling_avg,titles,"out/{}_day_traffic_avg_speed.jpg".format(toLuxCam))
-plot_day_traffic(toLux_rolling_flow,fromLux_rolling_flow,titles,"out/{}_day_traffic_flow_rate.jpg".format(toLuxCam))
-plot_day_traffic(toLux_rolling_traf,fromLux_rolling_traf,titles,"out/{}_day_traffic_concentration.jpg".format(toLuxCam))
+plot_day_traffic(toLux_rolling_avg,fromLux_rolling_avg,titles,"out/Cita{}_day_traffic_avg_speed.jpg".format(toLuxCam))
+plot_day_traffic(toLux_rolling_flow,fromLux_rolling_flow,titles,"out/Cita{}_day_traffic_flow_rate.jpg".format(toLuxCam))
+plot_day_traffic(toLux_rolling_traf,fromLux_rolling_traf,titles,"out/Cita{}_day_traffic_concentration.jpg".format(toLuxCam))
 
 
 for direction in ['outboundFromTown','inboundTowardsTown']:
@@ -312,9 +331,9 @@ for direction in ['outboundFromTown','inboundTowardsTown']:
         datas3.append(data3)
         labels.append(cam)
         
-    plot_mult(datas,labels,'Date','avgVehicleSpeed',file='out/{}_{}_avgVehicleSpeed.png'.format(road,direction))    
-    plot_mult(datas2,labels,'Date','vehicleFlowRate',file='out/{}_{}_vehicleFlowRate.png'.format(road,direction))     
-    plot_mult(datas3,labels,'Date','vehicleFlowRate',file='out/{}_{}_trafficConcentration.png'.format(road,direction)) 
+    plot_mult(datas,labels,'Date','avgVehicleSpeed',file='out/Cita{}_{}_avgVehicleSpeed.png'.format(road,direction))    
+    plot_mult(datas2,labels,'Date','vehicleFlowRate',file='out/Cita{}_{}_vehicleFlowRate.png'.format(road,direction))     
+    plot_mult(datas3,labels,'Date','vehicleFlowRate',file='out/Cita{}_{}_trafficConcentration.png'.format(road,direction)) 
 
 
 # toLux = getFilteredData(data,toLuxCam)
@@ -452,16 +471,50 @@ print ("Predict speed anf flow less than 60% of the average")
 X,y = generateXYspeedAndFlowUnder(df)
 model = train_model(X,y)
 
+#  Which indicator gives the most reliable predictions?
+
+def train_model_and_get_metrics(X,y):
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=42)
+    start = timer()
+    forest = RandomForestClassifier(max_depth = 10, n_estimators = 500, random_state = 42)
+    random_forest = forest.fit(X_train,y_train)
+    end = timer()
+    y_pred = random_forest.predict(X_test)
+    #print (" Accuracy    : ", accuracy_score(y_true,y_pred))
+    #print (" Precision   : ", precision_score(y_true,y_pred))
+    #print (" Sensitivity : ", recall_score(y_true,y_pred))    
+    return [accuracy_score(y_test,y_pred), precision_score(y_test,y_pred),recall_score(y_test,y_pred)]
+
+cams = camera.loc[(camera['road']=='A3')&(camera['direction']=='inboundTowardsTown')].sort_values(by=['direction_dist'],ascending=False)['id'].values
+prev_cam_dict = getPreviousCamDict(camera)
+speed20=[]
+speedUnder=[]
+speedAndFlowUnder=[]
+for cam in (cams[1:]):
+    cam1 = prev_cam_dict.get(cam)
+    print ('camera :',cam)
+    df = generateDf(data,cam,cam1)
+    X,y = generateXYspeed20(df)
+    speed20.append(train_model_and_get_metrics(X,y))
+    X,y = generateXYspeedUnder(df)
+    speedUnder.append(train_model_and_get_metrics(X,y))
+    X,y = generateXYspeedAndFlowUnder(df)
+    speedAndFlowUnder.append(train_model_and_get_metrics(X,y))
+speed20df = pd.DataFrame(speed20, columns = ['Accurancy', 'precision','recall'])
+speedUnderdf = pd.DataFrame(speedUnder, columns = ['Accurancy', 'precision','recall'])
+speedAndFlowUnderdf = pd.DataFrame(speedAndFlowUnder, columns = ['Accurancy', 'precision','recall'])
+
+for col in ['Accurancy', 'precision','recall']:
+    plt.plot(speed20df[col], label='speed20')    
+    plt.plot(speedUnderdf[col], label='speedUnder')
+    plt.plot(speedAndFlowUnderdf[col], label='speedAndFlowUnder')
+    plt.title(col)
+    plt.legend()
+    plt.savefig('out/CitaIndicatorsCompare.png')
 
 
 ######################################################
 ## LSTM
-######################################################
-
-WINDOW = 10
-FORECAST = 1
-
-## Generate X and y
 ######################################################
 
 def getSequences(sequence, backward, forward=1):
@@ -476,39 +529,7 @@ def getSequences(sequence, backward, forward=1):
     
     return np.array(X), np.array(y)
 
-
-
-def generateXYfor1cam(cam,pdata,pindexMin='2010-12-02 00:00:00+0000',pindexMax='2030-12-03 00:00:00+0000'):
-    df = getFilteredData(pdata,cam,indexMin=pindexMin,indexMax=pindexMax)
-    df=df[['avgVehicleSpeed', 'vehicleFlowRate']]
-    scaler = MinMaxScaler()
-    scaled = scaler.fit_transform(df)
-    X, y = getSequences(scaled, backward = WINDOW , forward= FORECAST )
-    y =  y[:,:,0]
-    return X , y , scaler
-
-
-def generateXYfor2cam(cam,cam1,pdata,pindexMin='2010-12-02 00:00:00+0000',pindexMax='2030-12-03 00:00:00+0000',scaler=None):
-    
-    df0 = getFilteredData(pdata,cam,indexMin=pindexMin,indexMax=pindexMax)
-    df0=df0[['avgVehicleSpeed', 'vehicleFlowRate']]
-    df1 = getFilteredData(pdata,cam1,indexMin=pindexMin,indexMax=pindexMax)
-    df1=df1[['avgVehicleSpeed', 'vehicleFlowRate']]
-        
-    df1.rename(columns={'avgVehicleSpeed' : 'pre_avgVehicleSpeed', 'vehicleFlowRate' : 'pre_vehicleFlowRate'},inplace=True)
-    df = df0.join(df1,how='inner')
-    df.dropna(inplace=True)
-    if scaler == None:
-        scaler = MinMaxScaler()
-    scaled = scaler.fit_transform(df)
-    X, y = getSequences(scaled, backward = WINDOW , forward= FORECAST )
-    y =  y[:,0]
-    return X , y , scaler
-
-
-
-print("{} Start".format(datetime.today()))
-
+# Parameters
 pindexMin = '2000-01-01 00:00:00+0000'
 pindexMax = '2030-01-01 00:00:00+0000'
 
@@ -518,6 +539,7 @@ cam1 = 'A3.VM.7280'
 WINDOW = 10
 FORECAST = 3
 
+# Build features dataframe
 df0 = getFilteredData(data,cam,indexMin=pindexMin,indexMax=pindexMax)
 df0=df0[['avgVehicleSpeed', 'vehicleFlowRate']]
 df1 = getFilteredData(data,cam1,indexMin=pindexMin,indexMax=pindexMax)
@@ -531,109 +553,69 @@ scaler = MinMaxScaler()
 scaled = scaler.fit_transform(df)
 
 X, _ = getSequences(scaled, backward = WINDOW , forward= FORECAST )
-_ , y = getSequences(scaled[:,0], backward = WINDOW , forward= FORECAST )
+_ , ySpeed = getSequences(scaled[:,0], backward = WINDOW , forward= FORECAST )
+_ , yFlow = getSequences(scaled[:,1], backward = WINDOW , forward= FORECAST )
 
 print("X shape", X.shape," - y shape ", y.shape)
-print("{} fitting ".format(datetime.today()))
 
 X_train = X[1000:]
 X_test = X[:1000]
-y_train = y[1000:]
-y_test = y[:1000]
-model = keras.Sequential()
-model.add(keras.layers.LSTM(128, activation='relu', input_shape=(X.shape[1], X.shape[2])))
-#model.add(keras.layers.Dense(100, activation='relu'))
-model.add(keras.layers.Dense(FORECAST))
-model.compile(loss='mse', optimizer='adam')
-early_stop = keras.callbacks.EarlyStopping(
-        monitor='val_loss',
-        patience=10
-)   
-history = model.fit(
-    X_train,y_train, 
-    epochs=10, 
-    batch_size=64, 
-    validation_split=0.05,
-    shuffle=True,
-    callbacks=[early_stop]
-    )            
-print("{} fitting ".format(datetime.today()))
+ySpeed_train = ySpeed[1000:]
+ySpeed_test = ySpeed[:1000]
+yFlow_train = yFlow[1000:]
+yFlow_test = yFlow[:1000]
 
-plt.plot(history.history['loss'], label='train')
-plt.plot(history.history['val_loss'], label='test')
-plt.legend()
-plt.show()
+# Train the model
+def trainTheModel(X_train,y_train):
+    model = keras.Sequential()
+    model.add(keras.layers.LSTM(128, activation='relu', input_shape=(X_train.shape[1], X_train.shape[2])))
+    #model.add(keras.layers.Dense(100, activation='relu'))
+    model.add(keras.layers.Dense(FORECAST))
+    model.compile(loss='mse', optimizer='adam')
+    early_stop = keras.callbacks.EarlyStopping(
+            monitor='val_loss',
+            patience=10
+    )   
+    history = model.fit(
+        X_train,y_train, 
+        epochs=10, 
+        batch_size=64, 
+        validation_split=0.05,
+        shuffle=True,
+        callbacks=[early_stop],
+        verbose=0
+        )            
 
+    plt.plot(history.history['loss'], label='train')
+    plt.plot(history.history['val_loss'], label='test')
+    plt.legend()
+    plt.savefig('out/CitaLSTMValLoss.png')
+    return model
 
-y_pred = model.predict(X_test)
+modelSpeed = trainTheModel(X_train,ySpeed_train)
+modelFlow = trainTheModel(X_train,yFlow_train)
+
+# Evaluate the results with test data
+ySpeed_pred = modelSpeed.predict(X_test)
+yFlow_pred = modelFlow.predict(X_test)
+
 for i in [0,1,2]:
-    print("RMSE + {} minutes= {}".format(i*5+5,measure_rmse(y_test[:,i], (y_pred[:,i]))))
+    print("RMSE for Speed Prediction + {} minutes= {}".format(i*5+5,measure_rmse(ySpeed_test[:,i], (ySpeed_pred[:,i]))))
+
+for i in [0,1,2]:
+    print("RMSE for Flow Prediction + {} minutes= {}".format(i*5+5,measure_rmse(yFlow_test[:,i], (yFlow_pred[:,i]))))
 
 iStart=100
 iStop=200
 for i in [0,1,2]:
-    plt.plot(y_pred[:iStop,i], label='prediction')    
-    plt.plot(y[:iStop,i], label='true')
-    plt.title('prediction + {} minutes'.format(i*5+5))
+    plt.plot(ySpeed_pred[:iStop,i], label='prediction')    
+    plt.plot(ySpeed_test[:iStop,i], label='true')
+    plt.title('Speed prediction + {} minutes'.format(i*5+5))
     plt.legend()
-    plt.show()
-
-'''
-X_test, y_test , s = generateXYfor2cam(cam,cam1,data,'2019-11-22 00:00:00+0000','2019-11-23 00:00:00+0000',scaler)
-y_test_pred = model.predict(X_test)
-plt.plot(y_test_pred, label='prediction')    
-plt.plot(y_test, label='true')
-plt.legend()
-plt.show()
-
-print("End {}".format(datetime.today()))
-
-
-# cam1 = 'A3.VM.10437'
-# cam = 'A3.VM.11397'
-
-
-cam = 'A3.VM.8246' 
-cam1 = 'A3.VM.7280'
-WINDOW = 10
-FORECAST = 1
-
-# X, y , scaler = generateXYfor1cam('A3.VM.10437',data,pindexMin,pindexMax)
-print("{} generate X , y ".format(datetime.today()))
-X, y , scaler = generateXYfor2cam(cam,cam1,data,pindexMin,pindexMax,None)
-
-print("X shape", X.shape," - y shape ", y.shape)
-print("{} fitting ".format(datetime.today()))
-model = keras.Sequential()
-model.add(keras.layers.LSTM(128, activation='relu', input_shape=(X.shape[1], X.shape[2])))
-#model.add(keras.layers.Dense(100, activation='relu'))
-model.add(keras.layers.Dense(FORECAST))
-model.compile(loss='mse', optimizer='adam')
-early_stop = keras.callbacks.EarlyStopping(
-        monitor='val_loss',
-        patience=10
-)   
-history = model.fit(
-    X, y, 
-    epochs=10, 
-    batch_size=64, 
-    validation_split=0.05,
-    shuffle=True,
-    callbacks=[early_stop]
-    )            
-print("{} fitting ".format(datetime.today()))
-
-plt.plot(history.history['loss'], label='train')
-plt.plot(history.history['val_loss'], label='test')
-plt.legend()
-plt.show()
-
-X_test, y_test , s = generateXYfor2cam(cam,cam1,data,'2019-11-22 00:00:00+0000','2019-11-23 00:00:00+0000',scaler)
-y_test_pred = model.predict(X_test)
-plt.plot(y_test_pred, label='prediction')    
-plt.plot(y_test, label='true')
-plt.legend()
-plt.show()
-
-print("End {}".format(datetime.today()))
-'''
+    plt.savefig('out/CitaLSTMSpeedPrediction.png')
+for i in [0,1,2]:
+    plt.plot(yFlow_pred[:iStop,i], label='prediction')    
+    plt.plot(yFlow_test[:iStop,i], label='true')
+    plt.title('Flow prediction + {} minutes'.format(i*5+5))
+    plt.legend()
+    plt.savefig('out/CitaLSTMFlowPrediction.png')

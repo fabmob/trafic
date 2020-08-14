@@ -3,6 +3,11 @@
 Created on Wed Aug  5 08:52:19 2020
 
 @author: YannCLAUDEL
+
+
+Code python brute de l'analyse 
+predict-trafic-flow-from-camera-counting.ipynb
+
 """
 
 import numpy as np
@@ -18,13 +23,11 @@ plt.style.use('seaborn')
 ########################################## 
 
 file='data/telraam.csv'
-dir_image = 'out'
 dir_object='object'
 
 # root mean squared error or rmse
 def measure_rmse(actual, predicted):
 	return math.sqrt(mean_squared_error(actual, predicted))
-
 
 # Load and Save object
 def save(name,obj):
@@ -35,14 +38,30 @@ def save(name,obj):
 def load(name):
     savefile = open(name, 'rb')      
     return pickle.load(savefile) 
+# Describe Data
+def describeData(data):
+    print("shape = {}".format(data.shape))
+    description = data.describe().T
+    description["isNull"] = data.isnull().sum()
+    print(description)
 
-
+# 
 # Load the data
 ##########################################
 df = pd.read_csv(file, parse_dates = False, header = None,sep=',')
 df.columns=['time','id','timezone','pct_up','pedestrian','bike','car','lorry','pedestrian_lft','bike_lft','car_lft','lorry_lft','pedestrian_rgt','bike_rgt','car_rgt','lorry_rgt','car_speed_00','car_speed_10','car_speed_20','car_speed_30','car_speed_40','car_speed_50','car_speed_60','car_speed_70']
 df['time'] = pd.to_datetime(df['time'],errors='coerce',utc=True)  
 df['time'] = df['time'].fillna(method = 'ffill')
+nRow, nCol = df.shape
+print(f'There are {nRow} rows and {nCol} columns')
+df.head(5)
+describeData(df)
+
+# 
+# Skip the first row
+########################################### 
+minDate = '2020-06-16 00:00:00+00'
+df = df.loc[df['time']>minDate]
 
 # Reindex the data
 ########################################### 
@@ -56,34 +75,34 @@ df['dayofweek'] = df['localtime'].dt.dayofweek
 df['day'] = df['localtime'].dt.day
 df['hour'] = df['localtime'].dt.hour
 
-# Fill missing data
+# 
+# Fill missing values
 ###########################################
-for col in ['car','pedestrian','lorry','bike']:
+for col in ['car','pedestrian','lorry','bike','pedestrian_lft','bike_lft','car_lft','lorry_lft','pedestrian_rgt','bike_rgt','car_rgt','lorry_rgt']:
     df['adjust_'+col] = df.groupby(['dayofweek','hour'])[col].transform(lambda x: x.fillna(x.median()))
     df[col].fillna(0,inplace=True)
+df.fillna(0,inplace=True)
 
-for i in range(0,80,10):
-    df['car_speed_{:02d}'.format(i)].fillna(0,inplace=True)
+save('object/telraam',df)
 
+#
+# See adjusted data versus row data
+###########################################
+df['car'].plot(title='Number of car')
+plt.savefig('out/telraamNbrCar.png')
+
+df['adjust_car'].plot(title='Adjusted number of car ')
+plt.savefig('out/telraamAdjustedNbrCar.png')
+
+# 
 # Estimate the average speed
 ###########################################
 df['speed']=df['car_speed_00']*5+df['car_speed_10']*15+df['car_speed_20']*25+df['car_speed_30']*35+df['car_speed_40']*45+df['car_speed_50']*55+df['car_speed_60']*65+df['car_speed_70']*75
 df['speed'] = df['speed'] / (df['car_speed_00']+df['car_speed_10']+df['car_speed_20']+df['car_speed_30']+df['car_speed_40']+df['car_speed_50']+df['car_speed_60']+df['car_speed_70'])
 df['speed'].plot(title='Speed')
+plt.savefig('out/telraamSpeed.png')
 
-# max / median average speed by hour
-###########################################
-result = pd.pivot_table(df, index="hour", values=['speed'],columns=['dayofweek'], aggfunc=np.max,margins=False,dropna=False)
-result.columns = ['Monday','Tuesday','Wenesday','Thursday','Friday','Saturday','Sunday']
-result.plot(title='{} : max average speed by hour'.format('Speed'))
-plt.save('')
-
-result = pd.pivot_table(df, index="hour", values=['speed'],columns=['dayofweek'], aggfunc=np.median,margins=False,dropna=False)
-result.columns = ['Monday','Tuesday','Wenesday','Thursday','Friday','Saturday','Sunday']
-result.plot(title='{} : median average speed by hour'.format('Speed'))
-
-# balance between right and left
-###########################################
+# 
 left = pd.pivot_table(df, index="hour", values=['car_lft'],columns=['dayofweek'], aggfunc=np.sum,margins=False,dropna=False)
 right = pd.pivot_table(df, index="hour", values=['car_rgt'],columns=['dayofweek'], aggfunc=np.sum,margins=False,dropna=False)
 left.columns = ['Monday','Tuesday','Wenesday','Thursday','Friday','Saturday','Sunday']
@@ -94,13 +113,25 @@ barWidth = 0.45
 for day in ['Monday','Tuesday','Wenesday','Thursday','Friday','Saturday','Sunday']:
     r1 = np.arange(len(left[day]))
     r2 = [x + barWidth for x in r1]
-    plt.bar(r1, left[day], color='#d35400', width=barWidth, edgecolor='white', label='left')
-    plt.bar(r2, right['Monday'], color='#2e86c1', width=barWidth, edgecolor='white', label='right')
+    plt.bar(r1, left[day], color='#d35400', width=barWidth, edgecolor='white', label='car count left')
+    plt.bar(r2, right['Monday'], color='#2e86c1', width=barWidth, edgecolor='white', label='car count right')
     plt.xlabel('Hour', fontweight='bold')
     plt.legend()
     plt.title(day)
-    plt.show()
+    plt.savefig('out/telraam{}LeftRight.png'.format(day))
 
+# 
+# max / median average speed by hour
+###########################################
+result = pd.pivot_table(df, index="hour", values=['speed'],columns=['dayofweek'], aggfunc=np.max,margins=False,dropna=False)
+result.columns = ['Monday','Tuesday','Wenesday','Thursday','Friday','Saturday','Sunday']
+result.plot(title='{} : max average speed by hour'.format('Speed'))
+plt.savefig('out/telraamAvgSpeedMedian.png')
+
+result = pd.pivot_table(df, index="hour", values=['speed'],columns=['dayofweek'], aggfunc=np.median,margins=False,dropna=False)
+result.columns = ['Monday','Tuesday','Wenesday','Thursday','Friday','Saturday','Sunday']
+result.plot(title='{} : median average speed by hour'.format('Speed'))
+plt.savefig('out/telraamAvgSpeedMax.png')
 
 # Mean number by hour
 ###########################################
@@ -108,116 +139,66 @@ for col in ['car','pedestrian','lorry','bike']:
     result = pd.pivot_table(df, index="hour", values=[col],columns=['dayofweek'], aggfunc=np.mean,margins=False,dropna=False)
     result.columns = ['Monday','Tuesday','Wenesday','Thursday','Friday','Saturday','Sunday']
     result.plot(title='{} : mean number by hour'.format(col))
-    plt.show()
-    # plt.savefig('out/{}ByHour.jpg'.format(col))
+    plt.savefig('out/telraamAvgSpeedMean.png')
 
-# for col in ['car','pedestrian','lorry','bike']:
-#     df['adjust_'+col].plot(title=col)
-#     plt.show()
-
-# Adjusted data versus row data
-###########################################
-df['pct_up'].plot(title='Number of car')
-plt.show()
-df['car'].plot(title='Adjusted number of car ')
-plt.show()
-
-
-###########################################
-# Car Forcasting 
-###########################################
-
-minDate = '2020-06-16 10:00:00+00'
-maxDate = '2020-07-21 00:00:00+00'
-df = df.loc[df['time']>minDate]
-df = df.loc[df['time']<maxDate]
-
-# decomposition
+# 
+# Decomposition
 ###########################################
  
 d=sm.tsa.seasonal_decompose(df.adjust_car,period=24)
 figure = d.plot()
-plt.show()
+plt.savefig('out/telraamAdjustCarDecomposition.png')
 
+# Select a window of time with clean data 
+###########################################
 
+minDate = '2020-06-16 10:00:00+00'
+maxDate = '2020-07-21 00:00:00+00'
+
+# Select a window of time with clean data 
+# AND
 # Split train and test
 ###########################################
 train = df.adjust_car.loc[df.index<'2020-07-19 00:00:00+00'].copy()
-test = df.adjust_car.loc[df.index>='2020-07-19 00:00:00+00'].copy().iloc[:48]
+test = df.adjust_car.loc[(df.index>='2020-07-19 00:00:00+00')&(df.index<'2020-07-21 00:00:00+00')].copy().iloc[:48]
 train_and_test = pd.concat([train,test])
+print(train.shape)
+print(test.shape)
 
-
+# 
 # SARIMA
 ###########################################
-
-# import pmdarima as pm
-# grid_model = pm.auto_arima(df['adjust_car'], start_p=1, start_q=1,
-#                           test='adf',
-#                           max_p=4, max_q=4, m=24,
-#                           start_P=0, seasonal=True,
-#                           d=0, D=1, trace=True,
-#                           error_action='ignore',  
-#                           suppress_warnings=True, 
-#                           stepwise=True)
-# save('object/carArimaModel',grid_model)
-# grid_model = load('object/carArimaModel')
-# print(grid_model.summary())
-
-# period = 48
-# fitted, confint = grid_model.predict(n_periods=period, return_conf_int=True)
-# index_of_fc = pd.date_range(df['adjust_car'].index[-1], periods = period, freq='H')
-
-# # make series for plotting purpose
-# fitted_series = pd.Series(fitted, index=index_of_fc)
-# lower_series = pd.Series(confint[:, 0], index=index_of_fc)
-# upper_series = pd.Series(confint[:, 1], index=index_of_fc)
-
-# # Plot
-# plt.plot(df['adjust_car'])
-# plt.plot(fitted_series, color='darkgreen')
-# plt.fill_between(lower_series.index, 
-#                  lower_series, 
-#                  upper_series, 
-#                  color='k', alpha=.15)
-
-# plt.title("SARIMA - Forecast of number of car")
-# plt.show()
-
-# SARIMA
-###########################################
-import statsmodels.api as sm
-
 model = sm.tsa.statespace.SARIMAX(train, trend='n', order=(1,0,0), seasonal_order=(2,1,0,24))
-results = model.fit()
-print(results.summary())
+model_sarima = model.fit()
+print(model_sarima.summary())
 
-forecast = results.predict(start = test.index[0], end= test.index[-1], dynamic= True) 
+forecast_sarima = model_sarima.predict(start = test.index[0], end= test.index[-1], dynamic= True) 
 plt.plot(test,label="true")
-plt.plot(forecast,label="forecast")
+plt.plot(forecast_sarima,label="forecast")
 plt.legend(loc='upper left')
 plt.title("SARIMA - Forecast of number of car")
-plt.show()
+plt.savefig('out/telraamSARIMAForecast.png')
 
 # root mean squared error or rmse
-print(measure_rmse(test, forecast))
+print(measure_rmse(test, forecast_sarima))
 
-
+# 
 # ExponentialSmoothing
 ###########################################
 
 from statsmodels.tsa.api import ExponentialSmoothing
-model = ExponentialSmoothing(train.values, trend='add', seasonal='add', seasonal_periods=24).fit()
-forecast = model.forecast(len(test))
-forecast = pd.DataFrame(data=forecast,index=test.index)
+model_exp = ExponentialSmoothing(train.values, trend='add', seasonal='add', seasonal_periods=24).fit()
+
+forecast_exp = model_exp.forecast(len(test))
+forecast_exp = pd.DataFrame(data=forecast_exp,index=test.index)
 plt.plot(test,label="true")
-plt.plot(test.index,forecast,label="forecast")
+plt.plot(test.index,forecast_exp,label="forecast")
 plt.legend(loc='upper left')
 plt.title("ExponentialSmoothing - Forecast of number of car")
-plt.show()
+plt.savefig('out/telraamExponentialSmoothingForecast.png')
 
 # root mean squared error or rmse
-print(measure_rmse(test, forecast))
-
+print(measure_rmse(test, forecast_exp))
 
 # LSTM
 ###########################################
@@ -290,19 +271,35 @@ plt.title('model loss')
 plt.ylabel('loss')
 plt.xlabel('epoch')
 plt.legend(['train', 'test'], loc='upper left')
-plt.show()
+plt.savefig('out/telraamLSTMValLoss.png')
 
 X,y = generateSequence(scaled_all_serie,WINDOW_SIZE)
 y_predicted = model.predict(X)
 y_inverse = scaler.inverse_transform(y)
 y_predicted_inverse = scaler.inverse_transform(y_predicted)
 
-forecast = y_predicted_inverse[-48:].ravel()
+forecast_lstm = y_predicted_inverse[-48:].ravel()
 plt.plot(test,label="true")
-plt.plot(test.index,forecast,label="forecast")
+plt.plot(test.index,forecast_lstm,label="forecast")
 plt.legend(loc='upper left')
 plt.title("LSTM - Forecast of number of car")
-plt.show()
+plt.savefig('out/telraamLSTMForecast.png')
 
 # root mean squared error or rmse
-print(measure_rmse(test, forecast))
+print(measure_rmse(test, forecast_lstm))
+
+# 
+## Comparison
+plt.plot(test,label="true",linestyle='dashed')
+plt.plot(test.index,forecast_lstm,label="forecast_lstm")
+plt.plot(test.index,forecast_exp,label="forecast_exp")
+plt.plot(test.index,forecast_sarima,label="forecast_sarima")
+plt.legend(loc='upper left')
+plt.title("Forecast of number of car")
+plt.savefig('out/telraamForecastCompare.png')
+
+# root mean squared error or rmse
+print("root mean squared error of SARIMA model     = {}".format(measure_rmse(test, forecast_sarima)))
+print("root mean squared error of EXP SMOOTH model = {}".format(measure_rmse(test, forecast_exp)))
+print("root mean squared error of LSTM model       = {}".format(measure_rmse(test, forecast_lstm)))
+# 
